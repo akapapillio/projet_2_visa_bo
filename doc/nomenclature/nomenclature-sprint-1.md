@@ -17,3 +17,4 @@ Formulaire             Nom variable ou (element d obj)
 
 
 structure du donnée a envoye (forma json)
+...a faire
