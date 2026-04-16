@@ -51,14 +51,14 @@ pseudo des contributeur :
     - [ ] CRUD eta_civil ()
     - [ ] ...
 - [ ]front-end
-    - [ ] affichage (formulaire)
+    - [x] affichage (formulaire)
     - [ ] (optionnel)list
     - [ ] ...
 
 ---
 
 # TO-DO FO :
-- [ ] formulaire
+- [x] formulaire
 - [ ]
 
 
