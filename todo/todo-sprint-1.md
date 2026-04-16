@@ -21,7 +21,7 @@ pseudo des contributeur :
 - [ ] test sprint 1 (en staging) BO ET FO
 - [ ] deployement sprint 1
 - [ ] documentation des feature
-- [ ] structure des dossier
+- [x] structure des dossier
 
 ---
 
@@ -45,15 +45,15 @@ pseudo des contributeur :
 
 # TO-DO BO :
 - [x] back-end
-- [ ] CRUD (back-end) feat(formulaire de saisi demande nouveau titre)
-    - [ ] CRUD demande (type_dm , nom , prenom , ...autre champ) feat DM nouveau titre (sprint-1)
-    - [ ] CRUD visa ()
-    - [ ] CRUD eta_civil ()
-    - [ ] ...
-- [ ]front-end
-    - [ ] affichage (formulaire)
-    - [ ] (optionnel)list
-    - [ ] ...
+- [x] CRUD (back-end) feat(formulaire de saisi demande nouveau titre)
+    - [x] CRUD demande (type_dm , nom , prenom , ...autre champ) feat DM nouveau titre (sprint-1)
+    - [x] CRUD visa ()
+    - [x] CRUD eta_civil ()
+    - [x] Endpoint et jointures validées
+- [x]front-end
+    - [ ] affichage (formulaire) (sera géré côté FO)
+    - [x] (optionnel)list (Géré en BO via Thymeleaf)
+    - [x] Modèles Thymeleaf configurés
 
 ---
 
@@ -64,4 +64,4 @@ pseudo des contributeur :
 
 
 
-# STATUS du sprint ou feature : 5% (stade env dev)
+# STATUS du sprint ou feature : 50% (stade env dev - BO terminé)
