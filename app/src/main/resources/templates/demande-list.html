@@ -37,7 +37,7 @@
                 <td th:text="${demande.typeDemande}">NOUVEAU_TITRE</td>
                 <td>
                     <span th:text="${demande.categorieVisa}" 
-                          th:classappend="${demande.categorieVisa != null && demande.categorieVisa.name() == 'INVESTISSEUR'} ? 'badge badge-investisseur' : ((demande.categorieVisa != null && demande.categorieVisa.name() == 'TRAVAILLEUR') ? 'badge badge-travailleur' : 'badge')">
+                          th:classappend="${#strings.toString(demande.categorieVisa) == 'INVESTISSEUR'} ? 'badge badge-investisseur' : (${#strings.toString(demande.categorieVisa) == 'TRAVAILLEUR'} ? 'badge badge-travailleur' : 'badge')">
                     </span>
                 </td>
                 <td th:text="${demande.etatCivil != null ? demande.etatCivil.nom : ''}">Doe</td>
