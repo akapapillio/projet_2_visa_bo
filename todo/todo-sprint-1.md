@@ -53,9 +53,9 @@ pseudo des contributeur :
     - [x] CRUD visa ()
     - [x] CRUD etat_civil ()
     - [x] Endpoint et jointures validées
-- [ ] web service (api) (dans controllers)
-- [ ] endpoint adapter pour les crude (visa , etat_civil , demande )
-- [ ] 
+- [x] web service (api) (dans controllers)
+- [x] endpoint adapter pour les crud (visa , etat_civil , demande )
+
 - [x]front-end
     - [x] affichage (formulaire) (sera géré côté FO)
     - [x] (optionnel)list (Géré en BO via Thymeleaf)
@@ -71,4 +71,4 @@ pseudo des contributeur :
 
 
 
-# STATUS du sprint ou feature : 50% (stade env dev - Staging : possible restructuration pour les simulation)
+# STATUS du sprint ou feature : 70% (API REST complète — en attente : test staging / doc finale / FO dto)
