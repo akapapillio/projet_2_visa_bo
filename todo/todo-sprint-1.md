@@ -44,7 +44,7 @@ pseudo des contributeur :
 ---
 
 # TO-DO BO :
-- [ ] back-end
+- [x] back-end
 - [ ] CRUD (back-end) feat(formulaire de saisi demande nouveau titre)
     - [ ] CRUD demande (type_dm , nom , prenom , ...autre champ) feat DM nouveau titre (sprint-1)
     - [ ] CRUD visa ()
