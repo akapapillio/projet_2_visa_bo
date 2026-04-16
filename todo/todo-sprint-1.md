@@ -54,7 +54,7 @@ pseudo des contributeur :
     - [x] CRUD etat_civil ()
     - [x] Endpoint et jointures validées
 - [ ] web service (api) (dans controllers)
-- [ ] endpoint adapter pour les crude (visa , etat_civil , demande )
+- [ ] endpoint adapter pour les crud (visa , etat_civil , demande )
 - [ ] 
 - [x]front-end
     - [x] affichage (formulaire) (sera géré côté FO)
