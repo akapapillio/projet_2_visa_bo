@@ -26,19 +26,22 @@ pseudo des contributeur :
 ---
 
 # TO-DO TL :
-- [ ] conception
+- [ ] conception  (en atente d une restructuration et refractor back pour)
 - [ ] données de test
 - [ ] 1er simulation sql
-- [ ] convention
-- [ ] structure git
+- [x] convention
+- [x] structure git
+- [ ] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
 
 - [ ]GitFlow
-    - [ ] Creation de la branche : sprint-1 (coté FO ET BO)
+    - [x] Creation de la branche : sprint-1 (coté FO ET BO)
     - [ ] Merge sprint-1 (supp sprint 1) / Creation de STAGING-sprint-1
     - [ ] Creation de release ()
     - [ ] déploiement
-
+   
 ## Doc
+- [ ] api doc final pour sprint 1
+- [ ] set up doc et gestion de data doc 
 - [ ] ...
 
 ---
@@ -48,8 +51,11 @@ pseudo des contributeur :
 - [x] CRUD (back-end) feat(formulaire de saisi demande nouveau titre)
     - [x] CRUD demande (type_dm , nom , prenom , ...autre champ) feat DM nouveau titre (sprint-1)
     - [x] CRUD visa ()
-    - [x] CRUD eta_civil ()
+    - [x] CRUD etat_civil ()
     - [x] Endpoint et jointures validées
+- [ ] web service (api) (dans controllers)
+- [ ] endpoint adapter pour les crude (visa , etat_civil , demande )
+- [ ] 
 - [x]front-end
     - [x] affichage (formulaire) (sera géré côté FO)
     - [x] (optionnel)list (Géré en BO via Thymeleaf)
@@ -60,8 +66,9 @@ pseudo des contributeur :
 # TO-DO FO :
 - [x] formulaire
 - [ ]
+- [ ]dto structurelle en utilisant l api pour avoir les objet (entité) 
 
 
 
 
-# STATUS du sprint ou feature : 50% (stade env dev - BO terminé)
+# STATUS du sprint ou feature : 50% (stade env dev - Staging : possible restructuration pour les simulation)
