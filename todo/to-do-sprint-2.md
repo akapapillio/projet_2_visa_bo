@@ -33,9 +33,12 @@ pseudo des contributeur :
 
 
 # TO-DO BO
-- [ ]
-- [ ]
+- [ ] crud  pour les dossier (decentraliser le dossier) rendre independant des demande (donc il peut y avoir des demandeur sans demande pour resumer consepte customer existant)
+- [ ] verificateur by demande (faire un dm déclanche un verificateur pour avoir le constat dans le status ex dossier cree (constat dans la demande manque de photo , etc )
+- [ ] 
 
 
 
 # TO-DO FO
+- [ ] faire une formulaire pour les crud pour les dossier decentralisé (consomation d api)
+- [ ] lister les demande ou metre les demande dans des tableau (mettre en evidence les constat ) (rappelle constat correspondant au demande)
