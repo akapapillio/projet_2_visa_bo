@@ -17,12 +17,11 @@ pseudo des contributeur :
 - [ ] tests finaux pour le sprint 2 (release)
 
 # TO-DO TL :
-- [ ] conception  (en atente d une restructuration et refractor back pour)
-- [ ] données de test 
-- [ ] 1er simulation sql sprint 2
-- [ ] convention
-- [ ] structure git
-- [ ] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
+- [x] conception  (en atente d une restructuration et refractor back pour)
+- [x] données de test 
+- [x] 1er simulation sql sprint 2
+- [x] structure git
+- [x] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
 
 - [ ]GitFlow
     - [ ] Creation de la branche : sprint-2 (coté FO ET BO)
