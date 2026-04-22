@@ -45,46 +45,33 @@ public class VisaTransformableApiController {
     // ─── READ ALL ─────────────────────────────────────────────────────────────
 
     @GetMapping
-    public ResponseEntity<List<VisaTransformable>> getAll() {
-        return ResponseEntity.ok(visaTransformableService.findAll());
+    public ResponseEntity<?> getAll() {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Consultation des visas historiques restreinte (Sprint 2).");
     }
 
     // ─── READ ONE ─────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        return visaTransformableService.findById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("VisaTransformable introuvable avec l'id : " + id));
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Consultation du visa #" + id + " restreinte (Sprint 2).");
     }
 
     // ─── UPDATE ───────────────────────────────────────────────────────────────
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody VisaTransformableDTO dto) {
-        try {
-            VisaTransformable entity = toEntity(dto);
-            return visaTransformableService.update(id, entity)
-                    .<ResponseEntity<?>>map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("VisaTransformable introuvable avec l'id : " + id));
-        } catch (Exception e) {
-            return new ResponseEntity<>("Erreur lors de la mise à jour : " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Modification de visa historique restreinte (Sprint 2).");
     }
 
     // ─── DELETE ───────────────────────────────────────────────────────────────
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        boolean deleted = visaTransformableService.deleteById(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("VisaTransformable introuvable avec l'id : " + id);
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Suppression de visa historique restreinte (Sprint 2).");
     }
 
     // ─── Mapper DTO → Entity ──────────────────────────────────────────────────

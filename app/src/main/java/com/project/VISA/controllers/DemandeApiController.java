@@ -55,19 +55,17 @@ public class DemandeApiController {
     // ─── READ ALL ─────────────────────────────────────────────────────────────
 
     @GetMapping("/demandes")
-    public ResponseEntity<List<Demande>> getAllDemandes() {
-        List<Demande> demandes = demandeService.findAll();
-        return ResponseEntity.ok(demandes);
+    public ResponseEntity<?> getAllDemandes() {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Accès aux données historiques restreint pour ce sprint (Sprint 2).");
     }
 
     // ─── READ ONE ─────────────────────────────────────────────────────────────
 
     @GetMapping("/demandes/{id}")
     public ResponseEntity<?> getDemandeById(@PathVariable Long id) {
-        return demandeService.findById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Demande introuvable avec l'id : " + id));
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Accès à la demande #" + id + " restreint (Restriction base de données).");
     }
 
     // ─── UPDATE ───────────────────────────────────────────────────────────────
@@ -75,26 +73,15 @@ public class DemandeApiController {
     @PutMapping("/demandes/{id}")
     public ResponseEntity<?> updateDemande(@PathVariable Long id,
                                            @RequestBody DemandeDTO demandeDTO) {
-        try {
-            return demandeService.update(id, demandeDTO)
-                    .<ResponseEntity<?>>map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Demande introuvable avec l'id : " + id));
-        } catch (Exception e) {
-            return new ResponseEntity<>("Erreur lors de la mise à jour : " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Modification de dossier historique restreinte (Sprint 2).");
     }
 
     // ─── DELETE ───────────────────────────────────────────────────────────────
 
     @DeleteMapping("/demandes/{id}")
     public ResponseEntity<?> deleteDemande(@PathVariable Long id) {
-        boolean deleted = demandeService.deleteById(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Demande introuvable avec l'id : " + id);
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Suppression de dossier historique restreinte (Sprint 2).");
     }
 }
