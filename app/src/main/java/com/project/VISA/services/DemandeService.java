@@ -28,37 +28,38 @@ public class DemandeService {
 
     @Transactional
     public Demande creerNouvelleDemande(DemandeDTO dto) {
-        // 1. Gérer le Demandeur
-        Demandeur demandeur = new Demandeur();
-        demandeur.setNom(dto.getLastName());
-        demandeur.setPrenom(dto.getFirstNames());
-        demandeur.setDateNaissance(dto.getBirthDate());
-        
-        // Lookups
-        Nationalite nat = nationaliteRepository.findAll().stream()
-                .filter(n -> n.getNom().equalsIgnoreCase(dto.getNationality()))
-                .findFirst().orElse(nationaliteRepository.findAll().get(0));
-        demandeur.setNationalite(nat);
+        Demandeur demandeur;
 
-        SituationFam sit = situationFamRepository.findAll().stream()
-                .filter(s -> s.getLibelle().equalsIgnoreCase(dto.getMaritalStatus()))
-                .findFirst().orElse(situationFamRepository.findAll().get(0));
-        demandeur.setSituationFamille(sit);
+        // 1. Gérer le Demandeur (Existant ou Nouveau)
+        if (dto.getIdDemandeur() != null) {
+            demandeur = demandeurRepository.findById(dto.getIdDemandeur())
+                    .orElseThrow(() -> new RuntimeException("Demandeur non trouvé avec l'id : " + dto.getIdDemandeur()));
+        } else {
+            demandeur = new Demandeur();
+            demandeur.setNom(dto.getLastName());
+            demandeur.setPrenom(dto.getFirstNames());
+            demandeur.setDateNaissance(dto.getBirthDate());
+            
+            Nationalite nat = nationaliteRepository.findAll().stream()
+                    .filter(n -> n.getNom().equalsIgnoreCase(dto.getNationality()))
+                    .findFirst().orElse(null);
+            demandeur.setNationalite(nat);
 
-        // Piece par défaut (requis par le schéma SQL pour le demandeur)
-        Piece p = pieceRepository.findAll().stream().findFirst().orElse(null);
-        if (p == null) {
-            // Logique de secours si aucune pièce n'existe encore
-            // Normalement géré par DataInitializer
+            SituationFam sit = situationFamRepository.findAll().stream()
+                    .filter(s -> s.getLibelle().equalsIgnoreCase(dto.getMaritalStatus()))
+                    .findFirst().orElse(null);
+            demandeur.setSituationFamille(sit);
+
+            // Piece par défaut
+            Piece p = pieceRepository.findAll().stream().findFirst().orElse(null);
+            demandeur.setPiecePrincipale(p);
+            
+            demandeur = demandeurRepository.save(demandeur);
         }
-        demandeur.setPiecePrincipale(p);
-        
-        demandeur = demandeurRepository.save(demandeur);
 
         // 2. Gérer le Passeport
         Passeport passeport = new Passeport();
         passeport.setDemandeur(demandeur);
-        // On pourrait ajouter des champs au DTO pour le passeport plus tard
         passeportRepository.save(passeport);
 
         // 3. Gérer la Demande
@@ -67,15 +68,37 @@ public class DemandeService {
 
         TypeDemande type = typeDemandeRepository.findAll().stream()
                 .filter(t -> t.getNom().equalsIgnoreCase(dto.getTypeDemande()))
-                .findFirst().orElse(typeDemandeRepository.findAll().get(0));
+                .findFirst().orElseThrow(() -> new RuntimeException("Type de demande inconnu : " + dto.getTypeDemande()));
         demande.setTypeDemande(type);
 
+        // Statut Initial "CREE"
         StatusDm status = statusDmRepository.findAll().stream()
                 .filter(s -> s.getStatus().equals("CREE"))
-                .findFirst().orElse(statusDmRepository.findAll().get(0));
+                .findFirst().orElse(null);
         demande.setStatus(status);
 
+        demande = demandeRepository.save(demande);
+
+        // 4. Déclencher le Vérificateur (Simple constat par défaut pour ce sprint)
+        declencherVerificateur(demande, dto);
+
         return demandeRepository.save(demande);
+    }
+
+    private void declencherVerificateur(Demande demande, DemandeDTO dto) {
+        StringBuilder constat = new StringBuilder();
+        
+        // Exemple de logique de vérification simple basée sur les booleans du DTO
+        if (!dto.isaFourniPhotos()) constat.append("Manque Photos; ");
+        if (!dto.isaFourniCopiePasseport()) constat.append("Manque Copie Passeport; ");
+        
+        if (constat.length() > 0) {
+            StatusDm currentStatus = demande.getStatus();
+            if (currentStatus != null) {
+                currentStatus.setObservation("Constat : " + constat.toString());
+                statusDmRepository.save(currentStatus);
+            }
+        }
     }
 
     // ─── READ ─────────────────────────────────────────────────────────────────

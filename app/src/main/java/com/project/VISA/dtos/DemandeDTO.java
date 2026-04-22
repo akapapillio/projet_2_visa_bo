@@ -8,6 +8,7 @@ public class DemandeDTO {
     // Type d'application (lookup par nom)
     private String typeDemande;
     private String typeVisa; // Remplace CategorieVisa
+    private Long idDemandeur; // Pour lier à un demandeur existant
 
     // Etat Civil
     private String lastName;
@@ -53,6 +54,9 @@ public class DemandeDTO {
 
     public String getTypeVisa() { return typeVisa; }
     public void setTypeVisa(String typeVisa) { this.typeVisa = typeVisa; }
+
+    public Long getIdDemandeur() { return idDemandeur; }
+    public void setIdDemandeur(Long idDemandeur) { this.idDemandeur = idDemandeur; }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
