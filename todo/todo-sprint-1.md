@@ -35,7 +35,8 @@ pseudo des contributeur :
 
 - [ ]GitFlow
     - [x] Creation de la branche : sprint-1 (coté FO ET BO)
-    - [ ] Merge sprint-1 (supp sprint 1) / Creation de STAGING-sprint-1
+    - [x] Merge sprint-1 (supp sprint 1) / Creation de STAGING-sprint-1
+    - [ ] Merge les update dans staging + cherrypic
     - [ ] Creation de release ()
     - [ ] déploiement
    
@@ -65,8 +66,8 @@ pseudo des contributeur :
 
 # TO-DO FO :
 - [x] formulaire
-- [ ]
-- [ ]dto structurelle en utilisant l api pour avoir les objet (entité) 
+- [ ] case a coché pour les piece justificative , mais pas encore de scan
+- [ ] dto structurelle en utilisant l api pour avoir les objet (entité) 
 
 
 

@@ -42,7 +42,7 @@ scan des piece justificative :
 boutton , hoe tapitra ilay scan , tsy azo ovaina tsony ny information an ilay demande
 
 # sprint 3 
-
+scan
 
 
 

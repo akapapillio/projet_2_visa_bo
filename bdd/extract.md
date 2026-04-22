@@ -1,0 +1,1 @@
+pg_dump -U postgres -d nom_base --schema-only > schema.sql
