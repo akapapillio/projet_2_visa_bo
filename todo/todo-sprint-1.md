@@ -17,32 +17,32 @@ pseudo des contributeur :
 # Tâches communes :
 - [x] recherche des info public pour les champ réponse dans sprint/ [sprint-1]
 - [x] creation repo(BO/FO)
-- [ ] script
-- [ ] test sprint 1 (en staging) BO ET FO
-- [ ] deployement sprint 1
-- [ ] documentation des feature
+- [x] script
+- [x] test sprint 1 (en staging) BO ET FO
+- [x] deployement sprint 1
+- [x] documentation des feature
 - [x] structure des dossier
 
 ---
 
 # TO-DO TL :
-- [ ] conception  (en atente d une restructuration et refractor back pour)
-- [ ] données de test
-- [ ] 1er simulation sql
+- [x] conception  (en atente d une restructuration et refractor back pour)
+- [x] données de test
+- [x] 1er simulation sql
 - [x] convention
 - [x] structure git
-- [ ] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
+- [x] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
 
-- [ ]GitFlow
+- [x]GitFlow
     - [x] Creation de la branche : sprint-1 (coté FO ET BO)
     - [x] Merge sprint-1 (supp sprint 1) / Creation de STAGING-sprint-1
-    - [ ] Merge les update dans staging + cherrypic
-    - [ ] Creation de release ()
-    - [ ] déploiement
+    - [x] Merge les update dans staging + cherrypic
+    - [x] Creation de release ()
+    - [x] déploiement
    
 ## Doc
 - [ ] api doc final pour sprint 1
-- [ ] set up doc et gestion de data doc 
+- [x] set up doc et gestion de data doc 
 - [ ] ...
 
 ---
