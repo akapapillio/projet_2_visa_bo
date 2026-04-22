@@ -5,9 +5,9 @@ import com.project.VISA.models.enums.TypeDemande;
 import java.time.LocalDate;
 
 public class DemandeDTO {
-    // Type d'application
-    private TypeDemande typeDemande;
-    private CategorieVisa categorieVisa;
+    // Type d'application (lookup par nom)
+    private String typeDemande;
+    private String typeVisa; // Remplace CategorieVisa
 
     // Etat Civil
     private String lastName;
@@ -48,11 +48,11 @@ public class DemandeDTO {
     // Getters and Setters missing for brevity
     // But lombok is not in pom, so generating standard getters/setters
 
-    public TypeDemande getTypeDemande() { return typeDemande; }
-    public void setTypeDemande(TypeDemande typeDemande) { this.typeDemande = typeDemande; }
+    public String getTypeDemande() { return typeDemande; }
+    public void setTypeDemande(String typeDemande) { this.typeDemande = typeDemande; }
 
-    public CategorieVisa getCategorieVisa() { return categorieVisa; }
-    public void setCategorieVisa(CategorieVisa categorieVisa) { this.categorieVisa = categorieVisa; }
+    public String getTypeVisa() { return typeVisa; }
+    public void setTypeVisa(String typeVisa) { this.typeVisa = typeVisa; }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
