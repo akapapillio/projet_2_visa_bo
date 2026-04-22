@@ -33,11 +33,14 @@ pseudo des contributeur :
 
 
 # TO-DO BO
-- [ ] crud  pour les dossier (decentraliser le dossier) rendre independant des demandes (donc il peut y avoir des demandeur sans demande pour resumer concepte customer existant)
-    - [ ] choix de demandeur (puis ses dossier )
-    - [ ]     
-- [ ] verificateur by demande (faire un dm déclanche un verificateur pour avoir le constat dans le status ex dossier cree (constat dans la demande manque de photo , etc )
-- [ ] 
+- [x] Désactiver les éventuels outils ou endpoints de récupération d'anciennes données pour auto-complétion.
+- [x] Modifier les traitements pour accepter un duplicata / un visa transformable comme un **nouvel enregistrement** complet.
+- [x] Vérifier le pipeline de sauvegarde (Back-end) pour s'assurer d'aucune collision avec des IDs bloqués ou masqués.
+- [x] Pièce justificatif (Modélisé via CategoriePiece et Piece).
+- [x] Type de demandes (recupération, duplicata, travailleur, investisseur, transformable).
+- [x] crud pour les dossier (decentraliser le dossier) rendre independant des demandes (concept client existant)
+    - [x] choix de demandeur (idDemandeur dans le DTO)
+- [x] verificateur by demande (déclanché à la création avec constat dans l'observation)
 
 
 
