@@ -56,32 +56,66 @@ public class DemandeApiController {
 
     @GetMapping("/demandes")
     public ResponseEntity<?> getAllDemandes() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body("Accès aux données historiques restreint pour ce sprint (Sprint 2).");
+        try {
+            List<Demande> demandes = demandeService.findAll();
+            return ResponseEntity.ok(demandes);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erreur lors de la récupération des demandes : " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // ─── READ ONE ─────────────────────────────────────────────────────────────
 
     @GetMapping("/demandes/{id}")
-    public ResponseEntity<?> getDemandeById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body("Accès à la demande #" + id + " restreint (Restriction base de données).");
+    public ResponseEntity<?> getDemandeById(@PathVariable("id") Long id) {
+        try {
+            var result = demandeService.findById(id);
+            if (result.isPresent()) {
+                return ResponseEntity.ok(result.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Demande non trouvée avec l'id : " + id);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erreur lors de la récupération de la demande : " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // ─── UPDATE ───────────────────────────────────────────────────────────────
 
     @PutMapping("/demandes/{id}")
-    public ResponseEntity<?> updateDemande(@PathVariable Long id,
+    public ResponseEntity<?> updateDemande(@PathVariable("id") Long id,
                                            @RequestBody DemandeDTO demandeDTO) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body("Modification de dossier historique restreinte (Sprint 2).");
+        try {
+            var result = demandeService.update(id, demandeDTO);
+            if (result.isPresent()) {
+                return ResponseEntity.ok(result.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Demande non trouvée avec l'id : " + id);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erreur lors de la modification de la demande : " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // ─── DELETE ───────────────────────────────────────────────────────────────
 
     @DeleteMapping("/demandes/{id}")
-    public ResponseEntity<?> deleteDemande(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body("Suppression de dossier historique restreinte (Sprint 2).");
+    public ResponseEntity<?> deleteDemande(@PathVariable("id") Long id) {
+        try {
+            if (demandeService.deleteById(id)) {
+                return ResponseEntity.ok("Demande supprimée avec succès");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Demande non trouvée avec l'id : " + id);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erreur lors de la suppression de la demande : " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -25,15 +25,15 @@ public class Demandeur {
     private String lieuNaissance;
 
     @ManyToOne
-    @JoinColumn(name = "id_piece", nullable = false)
+    @JoinColumn(name = "id_piece")
     private Piece piecePrincipale;
 
     @ManyToOne
-    @JoinColumn(name = "id_situation_fam", nullable = false)
+    @JoinColumn(name = "id_situation_fam")
     private SituationFam situationFamille;
 
     @ManyToOne
-    @JoinColumn(name = "id_nationalite", nullable = false)
+    @JoinColumn(name = "id_nationalite")
     private Nationalite nationalite;
 
     // Getters and Setters

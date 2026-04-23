@@ -115,10 +115,43 @@ public class DemandeService {
 
     @Transactional
     public Optional<Demande> update(Long id, DemandeDTO dto) {
-        // Le Sprint 2 restreint l'UPDATE sur les anciennes données.
-        // Mais pour les nouvelles créations internes, on peut garder la méthode.
         return demandeRepository.findById(id).map(existing -> {
-            // Logique de mise à jour simplifiée pour le nouveau schéma
+            Demandeur demandeur = existing.getDemandeur();
+
+            // Mettre à jour le Demandeur
+            if (dto.getLastName() != null) demandeur.setNom(dto.getLastName());
+            if (dto.getFirstNames() != null) demandeur.setPrenom(dto.getFirstNames());
+            if (dto.getBirthDate() != null) demandeur.setDateNaissance(dto.getBirthDate());
+
+            if (dto.getNationality() != null) {
+                Nationalite nat = nationaliteRepository.findAll().stream()
+                        .filter(n -> n.getNom().equalsIgnoreCase(dto.getNationality()))
+                        .findFirst().orElse(null);
+                demandeur.setNationalite(nat);
+            }
+
+            if (dto.getMaritalStatus() != null) {
+                SituationFam sit = situationFamRepository.findAll().stream()
+                        .filter(s -> s.getLibelle().equalsIgnoreCase(dto.getMaritalStatus()))
+                        .findFirst().orElse(null);
+                demandeur.setSituationFamille(sit);
+            }
+
+            demandeurRepository.save(demandeur);
+
+            // Mettre à jour le Type de Demande si fourni
+            if (dto.getTypeDemande() != null) {
+                TypeDemande type = typeDemandeRepository.findAll().stream()
+                        .filter(t -> t.getNom().equalsIgnoreCase(dto.getTypeDemande()))
+                        .findFirst().orElse(null);
+                if (type != null) {
+                    existing.setTypeDemande(type);
+                }
+            }
+
+            // Re-déclencher la vérification
+            declencherVerificateur(existing, dto);
+
             return demandeRepository.save(existing);
         });
     }

@@ -53,7 +53,7 @@ public class EtatCivilApiController {
     // ─── READ ONE ─────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                 .body("Consultation de l'ID " + id + " restreinte (Sprint 2).");
     }
@@ -61,7 +61,7 @@ public class EtatCivilApiController {
     // ─── UPDATE ───────────────────────────────────────────────────────────────
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody EtatCivilDTO dto) {
+    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody EtatCivilDTO dto) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                 .body("Modification restreinte (Sprint 2).");
     }
@@ -69,7 +69,7 @@ public class EtatCivilApiController {
     // ─── DELETE ───────────────────────────────────────────────────────────────
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                 .body("Suppression restreinte (Sprint 2).");
     }

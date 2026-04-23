@@ -43,6 +43,23 @@ pseudo des contributeur :
 
 
 
-# TO-DO FO
-- [ ] faire une formulaire pour les crud pour les dossier decentralisé (consomation d api)
-- [ ] lister les demande ou metre les demande dans des tableau (mettre en evidence les constat ) (rappelle constat correspondant au demande)
+# TO-DO FO :
+- [x] formulaire (demande-visa-long-sejour.html)
+  - [x] Phase 1 : Fix field mapping (categorieVisa → typeVisa)
+  - [x] Phase 2 : Ajout des champs manquants (maidenName, maritalStatus, etc.)
+  - [x] Phase 5 : Lien de navigation vers accueil + listing
+
+- [x] gestion-demandes.html
+  - [x] Phase 3 : Fonctionnalité edit/update complète
+    - [x] Fix bug switchTab (sans event)
+    - [x] Fix mapping retour API (demandeur.nom, dateNaissance array, createdAt)
+    - [x] Harmonisation CSS status badges (status-documents-manquants)
+    - [x] Ajout formatStatus()
+    - [x] Auto-chargement depuis URL ?edit=ID
+  - [x] Phase 5 : Lien de navigation vers listing-demandes
+
+- [x] listing-demandes.html
+  - [x] Phase 4 : Bouton "Modifier" (✏️) par ligne → redirect vers gestion-demandes.html?edit=ID
+  - [x] Phase 5 : Fix date (createdAt), formatDate() pour LocalDate array, lien vers gestion-demandes
+
+

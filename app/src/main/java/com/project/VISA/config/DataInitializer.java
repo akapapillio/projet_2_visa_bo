@@ -18,10 +18,11 @@ public class DataInitializer {
             NationaliteRepository natRepo,
             SituationFamRepository sitRepo,
             TypeVisaRepository visaTypeRepo,
-            CategoriePieceRepository catRepo) {
+            CategoriePieceRepository catRepo,
+            PieceRepository pieceRepo) {
         return args -> {
             if (typeRepo.count() == 0) {
-                Arrays.asList("NOUVEAU_TITRE", "RENOUVELLEMENT", "DUPLICATA", "TRANSFERT_VISA", "RECUPERATION", 
+                Arrays.asList("NOUVEAU_TITRE", "RENOUVELLEMENT", "DUPLICATA", "TRANSFERT_VISA", "RECUPERATION",
                         "NOUVEAU_TITRE_TRAVAILLEUR", "NOUVEAU_TITRE_INVESTISSEUR", "NOUVEAU_VISA_TRANSFORMABLE")
                         .forEach(name -> {
                             TypeDemande t = new TypeDemande();
@@ -80,14 +81,23 @@ public class DataInitializer {
             }
 
             if (catRepo.count() == 0) {
-                Arrays.asList("Photos", "Notice de renseignement", "Demande Ministre", "Copie Visa", 
-                        "Copie Passeport", "Certificat de Résidence", "Casier Judiciaire", "Statut Société", 
+                Arrays.asList("Photos", "Notice de renseignement", "Demande Ministre", "Copie Visa",
+                        "Copie Passeport", "Certificat de Résidence", "Casier Judiciaire", "Statut Société",
                         "Extrait RC", "Carte Fiscale", "Autorisation Emploi")
                         .forEach(c -> {
                             CategoriePiece cp = new CategoriePiece();
                             cp.setLibelle(c);
                             catRepo.save(cp);
                         });
+            }
+
+            // Créer les Pieces par défaut
+            if (pieceRepo.count() == 0 && catRepo.count() > 0) {
+                catRepo.findAll().forEach(categorie -> {
+                    Piece piece = new Piece();
+                    piece.setCategoriePiece(categorie);
+                    pieceRepo.save(piece);
+                });
             }
         };
     }
