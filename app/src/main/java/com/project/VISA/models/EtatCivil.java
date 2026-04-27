@@ -1,5 +1,6 @@
 package com.project.VISA.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -12,8 +13,8 @@ public class EtatCivil {
     @Column(name = "id_etat_civil")
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "id_demandeur", nullable = false)
+    @OneToOne(mappedBy = "etatCivil")
+    @JsonIgnore
     private Demandeur demandeur;
 
     @Column(name = "nom", length = 255)
@@ -82,3 +83,4 @@ public class EtatCivil {
     public String getAdresseEmployeur() { return adresseEmployeur; }
     public void setAdresseEmployeur(String adresseEmployeur) { this.adresseEmployeur = adresseEmployeur; }
 }
+

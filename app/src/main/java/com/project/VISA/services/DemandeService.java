@@ -1,6 +1,7 @@
 package com.project.VISA.services;
 
 import com.project.VISA.dtos.DemandeDTO;
+import com.project.VISA.dtos.DemandePieceStatusDTO;
 import com.project.VISA.models.*;
 import com.project.VISA.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ public class DemandeService {
 
     @Autowired private DemandeRepository demandeRepository;
     @Autowired private DemandeurRepository demandeurRepository;
+    @Autowired private EtatCivilRepository etatCivilRepository;
     @Autowired private PasseportRepository passeportRepository;
     @Autowired private TypeDemandeRepository typeDemandeRepository;
     @Autowired private StatusDmRepository statusDmRepository;
@@ -23,23 +25,41 @@ public class DemandeService {
     @Autowired private PieceRepository pieceRepository;
     @Autowired private TypeVisaRepository typeVisaRepository;
     @Autowired private VisaRepository visaRepository;
+    @Autowired private DemandePieceRepository demandePieceRepository;
+    @Autowired private PieceDemandeRepository pieceDemandeRepository;
+    @Autowired private CategoriePieceRepository categoriePieceRepository;
 
     // ─── CREATE ───────────────────────────────────────────────────────────────
 
     @Transactional
     public Demande creerNouvelleDemande(DemandeDTO dto) {
+        // 1. Créer d'abord l'EtatCivil
+        EtatCivil etatCivil = new EtatCivil();
+        etatCivil.setNom(dto.getLastName());
+        etatCivil.setPrenoms(dto.getFirstNames());
+        etatCivil.setNomJeuneFille(dto.getMaidenName());
+        etatCivil.setDateNaissance(dto.getBirthDate());
+        etatCivil.setSituationFamille(dto.getMaritalStatus());
+        etatCivil.setNationalite(dto.getNationality());
+        etatCivil.setDomicileHabituel(dto.getHomeAddress());
+        etatCivil.setProfession(dto.getOccupation());
+        etatCivil.setEmployeur(dto.getEmployerName());
+        etatCivil.setAdresseEmployeur(dto.getEmployerAddress());
+        etatCivil = etatCivilRepository.save(etatCivil);
+
+        // 2. Gérer le Demandeur (lié à EtatCivil)
         Demandeur demandeur;
 
-        // 1. Gérer le Demandeur (Existant ou Nouveau)
         if (dto.getIdDemandeur() != null) {
             demandeur = demandeurRepository.findById(dto.getIdDemandeur())
                     .orElseThrow(() -> new RuntimeException("Demandeur non trouvé avec l'id : " + dto.getIdDemandeur()));
         } else {
             demandeur = new Demandeur();
+            demandeur.setEtatCivil(etatCivil);
             demandeur.setNom(dto.getLastName());
             demandeur.setPrenom(dto.getFirstNames());
             demandeur.setDateNaissance(dto.getBirthDate());
-            
+
             Nationalite nat = nationaliteRepository.findAll().stream()
                     .filter(n -> n.getNom().equalsIgnoreCase(dto.getNationality()))
                     .findFirst().orElse(null);
@@ -50,19 +70,22 @@ public class DemandeService {
                     .findFirst().orElse(null);
             demandeur.setSituationFamille(sit);
 
-            // Piece par défaut
             Piece p = pieceRepository.findAll().stream().findFirst().orElse(null);
             demandeur.setPiecePrincipale(p);
-            
+
             demandeur = demandeurRepository.save(demandeur);
+
+            // Mettre à jour EtatCivil avec le Demandeur
+            etatCivil.setDemandeur(demandeur);
+            etatCivilRepository.save(etatCivil);
         }
 
-        // 2. Gérer le Passeport
+        // 3. Gérer le Passeport
         Passeport passeport = new Passeport();
         passeport.setDemandeur(demandeur);
         passeportRepository.save(passeport);
 
-        // 3. Gérer la Demande
+        // 4. Gérer la Demande
         Demande demande = new Demande();
         demande.setDemandeur(demandeur);
 
@@ -71,15 +94,30 @@ public class DemandeService {
                 .findFirst().orElseThrow(() -> new RuntimeException("Type de demande inconnu : " + dto.getTypeDemande()));
         demande.setTypeDemande(type);
 
-        // Statut Initial "CREE"
+        // Statut Initial "CREE" (fallback si absent)
         StatusDm status = statusDmRepository.findAll().stream()
-                .filter(s -> s.getStatus().equals("CREE"))
-                .findFirst().orElse(null);
+                .filter(s -> "CREE".equalsIgnoreCase(s.getStatus()))
+                .findFirst()
+                .orElse(null);
+        if (status == null) {
+            List<StatusDm> allStatus = statusDmRepository.findAll();
+            if (!allStatus.isEmpty()) {
+                status = allStatus.get(0);
+            } else {
+                StatusDm created = new StatusDm();
+                created.setStatus("CREE");
+                created.setObservation("Demande creee");
+                status = statusDmRepository.save(created);
+            }
+        }
         demande.setStatus(status);
 
         demande = demandeRepository.save(demande);
 
-        // 4. Déclencher le Vérificateur (Simple constat par défaut pour ce sprint)
+        // 5. Initialiser les pièces requises pour ce type de demande
+        initializePiecesForDemande(demande);
+
+        // 6. Déclencher le Vérificateur (Simple constat par défaut pour ce sprint)
         declencherVerificateur(demande, dto);
 
         return demandeRepository.save(demande);
@@ -117,6 +155,7 @@ public class DemandeService {
     public Optional<Demande> update(Long id, DemandeDTO dto) {
         return demandeRepository.findById(id).map(existing -> {
             Demandeur demandeur = existing.getDemandeur();
+            EtatCivil etatCivil = demandeur.getEtatCivil();
 
             // Mettre à jour le Demandeur
             if (dto.getLastName() != null) demandeur.setNom(dto.getLastName());
@@ -138,6 +177,21 @@ public class DemandeService {
             }
 
             demandeurRepository.save(demandeur);
+
+            // Mettre à jour EtatCivil aussi
+            if (etatCivil != null) {
+                if (dto.getLastName() != null) etatCivil.setNom(dto.getLastName());
+                if (dto.getFirstNames() != null) etatCivil.setPrenoms(dto.getFirstNames());
+                if (dto.getMaidenName() != null) etatCivil.setNomJeuneFille(dto.getMaidenName());
+                if (dto.getBirthDate() != null) etatCivil.setDateNaissance(dto.getBirthDate());
+                if (dto.getMaritalStatus() != null) etatCivil.setSituationFamille(dto.getMaritalStatus());
+                if (dto.getNationality() != null) etatCivil.setNationalite(dto.getNationality());
+                if (dto.getHomeAddress() != null) etatCivil.setDomicileHabituel(dto.getHomeAddress());
+                if (dto.getOccupation() != null) etatCivil.setProfession(dto.getOccupation());
+                if (dto.getEmployerName() != null) etatCivil.setEmployeur(dto.getEmployerName());
+                if (dto.getEmployerAddress() != null) etatCivil.setAdresseEmployeur(dto.getEmployerAddress());
+                etatCivilRepository.save(etatCivil);
+            }
 
             // Mettre à jour le Type de Demande si fourni
             if (dto.getTypeDemande() != null) {
@@ -165,5 +219,118 @@ public class DemandeService {
             return true;
         }
         return false;
+    }
+
+    // ─── PIECES ────────────────────────────────────────────────────────────────
+
+    /**
+     * Ajouter/initialiser les pièces requises pour une demande selon son type
+     */
+    @Transactional
+    public void initializePiecesForDemande(Demande demande) {
+        TypeDemande typeDemande = demande.getTypeDemande();
+
+        // Récupérer les pièces requises pour ce type de demande
+        List<PieceDemande> requiredPieces = pieceDemandeRepository.findByTypeDmId(typeDemande.getId());
+
+        if (requiredPieces.isEmpty()) {
+            categoriePieceRepository.findAll().forEach(cat -> {
+                DemandePiece demandePiece = new DemandePiece(demande, cat);
+                demande.addPiece(demandePiece);
+            });
+            demandeRepository.save(demande);
+            return;
+        }
+
+        for (PieceDemande pieceDemande : requiredPieces) {
+            // Vérifier si la pièce n'existe pas déjà
+            boolean exists = demande.getPieces().stream()
+                    .anyMatch(dp -> dp.getCategoriePiece().getId().equals(pieceDemande.getCategoriePiece().getId()));
+
+            if (!exists) {
+                DemandePiece demandePiece = new DemandePiece(demande, pieceDemande.getCategoriePiece());
+                demande.addPiece(demandePiece);
+            }
+        }
+
+        demandeRepository.save(demande);
+    }
+
+    /**
+     * Mettre à jour le statut de plusieurs pièces en une seule transaction
+     */
+    @Transactional
+    public void updateMultiplePiecesStatus(Long demandeId, List<DemandePieceStatusDTO> pieceDtos) {
+        Demande demande = demandeRepository.findById(demandeId)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
+
+        if (pieceDtos != null) {
+            for (DemandePieceStatusDTO dto : pieceDtos) {
+                if (dto.getCategoriePieceId() != null && dto.getIsProvided() != null) {
+                    DemandePiece demandePiece = demande.getPieces().stream()
+                        .filter(dp -> dp.getCategoriePiece() != null
+                            && dto.getCategoriePieceId().equals(dp.getCategoriePiece().getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                    if (demandePiece == null) {
+                        CategoriePiece categoriePiece = categoriePieceRepository.findById(dto.getCategoriePieceId())
+                            .orElseThrow(() -> new RuntimeException("Catégorie de pièce non trouvée"));
+                        demandePiece = new DemandePiece(demande, categoriePiece);
+                        demande.addPiece(demandePiece);
+                    }
+                    demandePiece.setIsProvided(dto.getIsProvided());
+                }
+            }
+        }
+        demandeRepository.save(demande);
+    }
+
+    /**
+     * Mettre à jour le statut d'une pièce pour une demande
+     */
+    @Transactional
+    public DemandePiece updatePieceStatus(Long demandeId, Long categoriePieceId, Boolean isProvided) {
+        DemandePiece demandePiece = demandePieceRepository
+            .findByDemandeIdAndCategoriePieceId(demandeId, categoriePieceId)
+            .orElse(null);
+
+        if (demandePiece == null) {
+            Demande demande = demandeRepository.findById(demandeId)
+                .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
+
+            // Evite de creer un doublon si la piece est deja attachee a la demande
+            demandePiece = demande.getPieces().stream()
+                .filter(dp -> dp.getCategoriePiece() != null
+                    && categoriePieceId.equals(dp.getCategoriePiece().getId()))
+                .findFirst()
+                .orElse(null);
+
+            if (demandePiece == null) {
+            CategoriePiece categoriePiece = categoriePieceRepository.findById(categoriePieceId)
+                .orElseThrow(() -> new RuntimeException("Catégorie de pièce non trouvée"));
+
+            DemandePiece newDemandePiece = new DemandePiece(demande, categoriePiece);
+            demande.addPiece(newDemandePiece);
+            demandePiece = newDemandePiece;
+            }
+        }
+
+        demandePiece.setIsProvided(isProvided);
+        return demandePieceRepository.save(demandePiece);
+    }
+
+    /**
+     * Récupérer toutes les pièces d'une demande
+     */
+    public List<DemandePiece> getPiecesForDemande(Long demandeId) {
+        return demandePieceRepository.findByDemandeId(demandeId);
+    }
+
+    /**
+     * Récupérer le passeport d'un demandeur
+     */
+    public Optional<Passeport> getPasseportForDemandeur(Long demandeurId) {
+        return passeportRepository.findByDemandeurId(demandeurId).stream().findFirst();
     }
 }

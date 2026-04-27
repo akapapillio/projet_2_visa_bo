@@ -2,6 +2,8 @@ package com.project.VISA.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "demande")
@@ -29,6 +31,9 @@ public class Demande {
     @ManyToOne
     @JoinColumn(name = "id_type_dm", nullable = false)
     private TypeDemande typeDemande;
+
+    @OneToMany(mappedBy = "demande", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DemandePiece> pieces = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -59,4 +64,17 @@ public class Demande {
 
     public TypeDemande getTypeDemande() { return typeDemande; }
     public void setTypeDemande(TypeDemande typeDemande) { this.typeDemande = typeDemande; }
+
+    public Set<DemandePiece> getPieces() { return pieces; }
+    public void setPieces(Set<DemandePiece> pieces) { this.pieces = pieces; }
+
+    public void addPiece(DemandePiece piece) {
+        pieces.add(piece);
+        piece.setDemande(this);
+    }
+
+    public void removePiece(DemandePiece piece) {
+        pieces.remove(piece);
+        piece.setDemande(null);
+    }
 }
