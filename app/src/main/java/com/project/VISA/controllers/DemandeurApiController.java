@@ -23,7 +23,7 @@ public class DemandeurApiController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Demandeur> getById(@PathVariable Long id) {
+    public ResponseEntity<Demandeur> getById(@PathVariable("id") Long id) {
         return demandeurService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -35,7 +35,7 @@ public class DemandeurApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         if (demandeurService.deleteById(id)) {
             return ResponseEntity.noContent().build();
         }

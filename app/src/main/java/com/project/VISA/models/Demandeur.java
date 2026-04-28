@@ -12,6 +12,10 @@ public class Demandeur {
     @Column(name = "id_demandeur")
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "id_etat_civil")
+    private EtatCivil etatCivil;
+
     @Column(name = "nom", length = 50, nullable = false)
     private String nom;
 
@@ -25,20 +29,23 @@ public class Demandeur {
     private String lieuNaissance;
 
     @ManyToOne
-    @JoinColumn(name = "id_piece", nullable = false)
+    @JoinColumn(name = "id_piece")
     private Piece piecePrincipale;
 
     @ManyToOne
-    @JoinColumn(name = "id_situation_fam", nullable = false)
+    @JoinColumn(name = "id_situation_fam")
     private SituationFam situationFamille;
 
     @ManyToOne
-    @JoinColumn(name = "id_nationalite", nullable = false)
+    @JoinColumn(name = "id_nationalite")
     private Nationalite nationalite;
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public EtatCivil getEtatCivil() { return etatCivil; }
+    public void setEtatCivil(EtatCivil etatCivil) { this.etatCivil = etatCivil; }
 
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
@@ -61,3 +68,4 @@ public class Demandeur {
     public Nationalite getNationalite() { return nationalite; }
     public void setNationalite(Nationalite nationalite) { this.nationalite = nationalite; }
 }
+

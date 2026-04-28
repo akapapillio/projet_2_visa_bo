@@ -17,12 +17,11 @@ pseudo des contributeur :
 - [ ] tests finaux pour le sprint 2 (release)
 
 # TO-DO TL :
-- [ ] conception  (en atente d une restructuration et refractor back pour)
-- [ ] données de test 
-- [ ] 1er simulation sql sprint 2
-- [ ] convention
-- [ ] structure git
-- [ ] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
+- [x] conception  (en atente d une restructuration et refractor back pour)
+- [x] données de test 
+- [x] 1er simulation sql sprint 2
+- [x] structure git
+- [x] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
 
 - [ ]GitFlow
     - [ ] Creation de la branche : sprint-2 (coté FO ET BO)
@@ -43,6 +42,23 @@ pseudo des contributeur :
 
 
 
-# TO-DO FO
-- [ ] faire une formulaire pour les crud pour les dossier decentralisé (consomation d api)
-- [ ] lister les demande ou metre les demande dans des tableau (mettre en evidence les constat ) (rappelle constat correspondant au demande)
+# TO-DO FO :
+- [x] formulaire (demande-visa-long-sejour.html)
+  - [x] Phase 1 : Fix field mapping (categorieVisa → typeVisa)
+  - [x] Phase 2 : Ajout des champs manquants (maidenName, maritalStatus, etc.)
+  - [x] Phase 5 : Lien de navigation vers accueil + listing
+
+- [x] gestion-demandes.html
+  - [x] Phase 3 : Fonctionnalité edit/update complète
+    - [x] Fix bug switchTab (sans event)
+    - [x] Fix mapping retour API (demandeur.nom, dateNaissance array, createdAt)
+    - [x] Harmonisation CSS status badges (status-documents-manquants)
+    - [x] Ajout formatStatus()
+    - [x] Auto-chargement depuis URL ?edit=ID
+  - [x] Phase 5 : Lien de navigation vers listing-demandes
+
+- [x] listing-demandes.html
+  - [x] Phase 4 : Bouton "Modifier" (✏️) par ligne → redirect vers gestion-demandes.html?edit=ID
+  - [x] Phase 5 : Fix date (createdAt), formatDate() pour LocalDate array, lien vers gestion-demandes
+
+
