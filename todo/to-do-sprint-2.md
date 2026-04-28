@@ -33,7 +33,6 @@ pseudo des contributeur :
 
 
 # TO-DO BO
-- [x] Désactiver les éventuels outils ou endpoints de récupération d'anciennes données pour auto-complétion.
 - [x] Modifier les traitements pour accepter un duplicata / un visa transformable comme un **nouvel enregistrement** complet.
 - [x] Vérifier le pipeline de sauvegarde (Back-end) pour s'assurer d'aucune collision avec des IDs bloqués ou masqués.
 - [x] Pièce justificatif (Modélisé via CategoriePiece et Piece).

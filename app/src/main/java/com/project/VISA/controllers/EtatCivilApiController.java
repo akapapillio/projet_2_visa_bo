@@ -78,16 +78,7 @@ public class EtatCivilApiController {
 
     private EtatCivil toEntity(EtatCivilDTO dto) {
         EtatCivil entity = new EtatCivil();
-        entity.setNom(dto.getNom());
-        entity.setPrenoms(dto.getPrenoms());
-        entity.setNomJeuneFille(dto.getNomJeuneFille());
-        entity.setDateNaissance(dto.getDateNaissance());
-        entity.setSituationFamille(dto.getSituationFamille());
-        entity.setNationalite(dto.getNationalite());
-        entity.setDomicileHabituel(dto.getDomicileHabituel());
-        entity.setProfession(dto.getProfession());
-        entity.setEmployeur(dto.getEmployeur());
-        entity.setAdresseEmployeur(dto.getAdresseEmployeur());
+        // Les informations personnelles sont maintenant dans Demandeur.
         return entity;
     }
 }

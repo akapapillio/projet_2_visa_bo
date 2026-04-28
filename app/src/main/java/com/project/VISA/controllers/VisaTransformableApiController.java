@@ -78,9 +78,8 @@ public class VisaTransformableApiController {
 
     private VisaTransformable toEntity(VisaTransformableDTO dto) {
         VisaTransformable entity = new VisaTransformable();
-        entity.setNumeroVisa(dto.getNumeroVisa());
-        entity.setDateDelivrance(dto.getDateDelivrance());
-        entity.setDateExpiration(dto.getDateExpiration());
+        entity.setNumVisa(dto.getNumeroVisa());
+        // Les dates sont désormais gérées dans la table Passeport ou Visa
         return entity;
     }
 }

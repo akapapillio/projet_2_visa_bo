@@ -31,9 +31,7 @@ public class VisaTransformableService {
     @Transactional
     public Optional<VisaTransformable> update(Long id, VisaTransformable updated) {
         return visaTransformableRepository.findById(id).map(existing -> {
-            existing.setNumeroVisa(updated.getNumeroVisa());
-            existing.setDateDelivrance(updated.getDateDelivrance());
-            existing.setDateExpiration(updated.getDateExpiration());
+            existing.setNumVisa(updated.getNumVisa());
             return visaTransformableRepository.save(existing);
         });
     }
