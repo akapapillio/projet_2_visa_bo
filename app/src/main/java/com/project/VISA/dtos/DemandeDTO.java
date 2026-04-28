@@ -15,6 +15,7 @@ public class DemandeDTO {
     private String firstNames;
     private String maidenName;
     private LocalDate birthDate;
+    private String birthPlace;
     private String maritalStatus;
     private String nationality;
     private String homeAddress;
@@ -69,6 +70,9 @@ public class DemandeDTO {
 
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+
+    public String getBirthPlace() { return birthPlace; }
+    public void setBirthPlace(String birthPlace) { this.birthPlace = birthPlace; }
 
     public String getMaritalStatus() { return maritalStatus; }
     public void setMaritalStatus(String maritalStatus) { this.maritalStatus = maritalStatus; }

@@ -29,6 +29,9 @@ public class EtatCivil {
     @Column(name = "date_naissance")
     private LocalDate dateNaissance;
 
+    @Column(name = "lieu_naissance", length = 100)
+    private String lieuNaissance;
+
     @Column(name = "situation_famille", length = 100)
     private String situationFamille;
 
@@ -64,6 +67,9 @@ public class EtatCivil {
 
     public LocalDate getDateNaissance() { return dateNaissance; }
     public void setDateNaissance(LocalDate dateNaissance) { this.dateNaissance = dateNaissance; }
+
+    public String getLieuNaissance() { return lieuNaissance; }
+    public void setLieuNaissance(String lieuNaissance) { this.lieuNaissance = lieuNaissance; }
 
     public String getSituationFamille() { return situationFamille; }
     public void setSituationFamille(String situationFamille) { this.situationFamille = situationFamille; }

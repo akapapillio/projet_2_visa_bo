@@ -28,6 +28,7 @@ public class DemandeService {
     @Autowired private DemandePieceRepository demandePieceRepository;
     @Autowired private PieceDemandeRepository pieceDemandeRepository;
     @Autowired private CategoriePieceRepository categoriePieceRepository;
+    @Autowired private VisaTransformableRepository visaTransformableRepository;
 
     // ─── CREATE ───────────────────────────────────────────────────────────────
 
@@ -39,6 +40,7 @@ public class DemandeService {
         etatCivil.setPrenoms(dto.getFirstNames());
         etatCivil.setNomJeuneFille(dto.getMaidenName());
         etatCivil.setDateNaissance(dto.getBirthDate());
+        etatCivil.setLieuNaissance(dto.getBirthPlace());
         etatCivil.setSituationFamille(dto.getMaritalStatus());
         etatCivil.setNationalite(dto.getNationality());
         etatCivil.setDomicileHabituel(dto.getHomeAddress());
@@ -84,6 +86,43 @@ public class DemandeService {
         Passeport passeport = new Passeport();
         passeport.setDemandeur(demandeur);
         passeportRepository.save(passeport);
+
+        // 3b. Gérer le Visa avec le TypeVisa
+        if (dto.getTypeVisa() != null && !dto.getTypeVisa().isEmpty()) {
+            Visa visa = new Visa();
+            visa.setDemandeur(demandeur);
+            visa.setNom(demandeur.getNom());
+            visa.setPrenom(demandeur.getPrenom());
+
+            TypeVisa typeVisa = typeVisaRepository.findAll().stream()
+                    .filter(tv -> tv.getLibelle().equalsIgnoreCase(dto.getTypeVisa()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (typeVisa != null) {
+                visa.setTypeVisa(typeVisa);
+                visaRepository.save(visa);
+            }
+        }
+
+        // 3c. Gérer le Visa Transformable (visa précédent)
+        if (dto.getNumeroVisaPrcd() != null || dto.getDateDelivranceVisaPrcd() != null || dto.getDateExpirationVisaPrcd() != null) {
+            VisaTransformable visaTransformable = new VisaTransformable();
+            visaTransformable.setDemandeur(demandeur);
+            visaTransformable.setPasseport(passeport);
+
+            if (dto.getNumeroVisaPrcd() != null) {
+                visaTransformable.setNumVisa(dto.getNumeroVisaPrcd());
+            }
+            if (dto.getDateDelivranceVisaPrcd() != null) {
+                visaTransformable.setDateDelivrance(dto.getDateDelivranceVisaPrcd());
+            }
+            if (dto.getDateExpirationVisaPrcd() != null) {
+                visaTransformable.setDateExpiration(dto.getDateExpirationVisaPrcd());
+            }
+
+            visaTransformableRepository.save(visaTransformable);
+        }
 
         // 4. Gérer la Demande
         Demande demande = new Demande();
@@ -184,6 +223,7 @@ public class DemandeService {
                 if (dto.getFirstNames() != null) etatCivil.setPrenoms(dto.getFirstNames());
                 if (dto.getMaidenName() != null) etatCivil.setNomJeuneFille(dto.getMaidenName());
                 if (dto.getBirthDate() != null) etatCivil.setDateNaissance(dto.getBirthDate());
+                if (dto.getBirthPlace() != null) etatCivil.setLieuNaissance(dto.getBirthPlace());
                 if (dto.getMaritalStatus() != null) etatCivil.setSituationFamille(dto.getMaritalStatus());
                 if (dto.getNationality() != null) etatCivil.setNationalite(dto.getNationality());
                 if (dto.getHomeAddress() != null) etatCivil.setDomicileHabituel(dto.getHomeAddress());
@@ -201,6 +241,36 @@ public class DemandeService {
                 if (type != null) {
                     existing.setTypeDemande(type);
                 }
+            }
+
+            // Mettre à jour le Visa Transformable
+            if (dto.getNumeroVisaPrcd() != null || dto.getDateDelivranceVisaPrcd() != null || dto.getDateExpirationVisaPrcd() != null) {
+                var visaTransformableOpt = visaTransformableRepository.findByDemandeurId(demandeur.getId()).stream().findFirst();
+                VisaTransformable visaTransformable;
+
+                if (visaTransformableOpt.isPresent()) {
+                    visaTransformable = visaTransformableOpt.get();
+                } else {
+                    visaTransformable = new VisaTransformable();
+                    visaTransformable.setDemandeur(demandeur);
+                    // Récupérer le premier passeport du demandeur
+                    var passeportOpt = getPasseportForDemandeur(demandeur.getId());
+                    if (passeportOpt.isPresent()) {
+                        visaTransformable.setPasseport(passeportOpt.get());
+                    }
+                }
+
+                if (dto.getNumeroVisaPrcd() != null) {
+                    visaTransformable.setNumVisa(dto.getNumeroVisaPrcd());
+                }
+                if (dto.getDateDelivranceVisaPrcd() != null) {
+                    visaTransformable.setDateDelivrance(dto.getDateDelivranceVisaPrcd());
+                }
+                if (dto.getDateExpirationVisaPrcd() != null) {
+                    visaTransformable.setDateExpiration(dto.getDateExpirationVisaPrcd());
+                }
+
+                visaTransformableRepository.save(visaTransformable);
             }
 
             // Re-déclencher la vérification
@@ -332,5 +402,19 @@ public class DemandeService {
      */
     public Optional<Passeport> getPasseportForDemandeur(Long demandeurId) {
         return passeportRepository.findByDemandeurId(demandeurId).stream().findFirst();
+    }
+
+    /**
+     * Récupérer le visa d'un demandeur
+     */
+    public Optional<Visa> getVisaForDemandeur(Long demandeurId) {
+        return visaRepository.findByDemandeurId(demandeurId).stream().findFirst();
+    }
+
+    /**
+     * Récupérer le visa transformable d'un demandeur
+     */
+    public Optional<VisaTransformable> getVisaTransformableForDemandeur(Long demandeurId) {
+        return visaTransformableRepository.findByDemandeurId(demandeurId).stream().findFirst();
     }
 }

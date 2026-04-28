@@ -7,6 +7,8 @@ import com.project.VISA.models.Demande;
 import com.project.VISA.models.Demandeur;
 import com.project.VISA.models.DemandePiece;
 import com.project.VISA.models.EtatCivil;
+import com.project.VISA.models.Visa;
+import com.project.VISA.models.VisaTransformable;
 import com.project.VISA.services.DemandeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -188,6 +190,17 @@ public class DemandeApiController {
             dto.put("typeDemande", demande.getTypeDemande().getNom());
         }
 
+        // Type Visa (depuis le visa du demandeur)
+        if (demandeur != null) {
+            var visaOpt = demandeService.getVisaForDemandeur(demandeur.getId());
+            if (visaOpt.isPresent()) {
+                Visa visa = visaOpt.get();
+                if (visa.getTypeVisa() != null) {
+                    dto.put("typeVisa", visa.getTypeVisa().getLibelle());
+                }
+            }
+        }
+
         // Status
         if (demande.getStatus() != null) {
             dto.put("status", demande.getStatus().getStatus());
@@ -212,6 +225,8 @@ public class DemandeApiController {
         // Infos EtatCivil
         if (etatCivil != null) {
             dto.put("maidenName", etatCivil.getNomJeuneFille());
+            dto.put("birthDate", etatCivil.getDateNaissance());
+            dto.put("birthPlace", etatCivil.getLieuNaissance());
             dto.put("homeAddress", etatCivil.getDomicileHabituel());
             dto.put("occupation", etatCivil.getProfession());
             dto.put("employerName", etatCivil.getEmployeur());
@@ -227,6 +242,15 @@ public class DemandeApiController {
                 dto.put("passeportNumero", passeport.getNumPasseport());
                 dto.put("passeportDateDelivrance", passeport.getDateDelivrance());
                 dto.put("passeportDateExpiration", passeport.getDateExpiration());
+            }
+
+            // Récupérer le visa transformable du demandeur
+            var visaTransformableOpt = demandeService.getVisaTransformableForDemandeur(demandeur.getId());
+            if (visaTransformableOpt.isPresent()) {
+                var visaTransformable = visaTransformableOpt.get();
+                dto.put("numeroVisaPrcd", visaTransformable.getNumVisa());
+                dto.put("dateDelivranceVisaPrcd", visaTransformable.getDateDelivrance());
+                dto.put("dateExpirationVisaPrcd", visaTransformable.getDateExpiration());
             }
         }
 
