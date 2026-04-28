@@ -60,5 +60,3 @@ pseudo des contributeur :
 - [x] listing-demandes.html
   - [x] Phase 4 : Bouton "Modifier" (✏️) par ligne → redirect vers gestion-demandes.html?edit=ID
   - [x] Phase 5 : Fix date (createdAt), formatDate() pour LocalDate array, lien vers gestion-demandes
-
-
