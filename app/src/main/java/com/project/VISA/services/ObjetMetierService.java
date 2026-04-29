@@ -92,14 +92,33 @@ public class ObjetMetierService {
         return visaRepository.findAll().stream().map(this::toResponse).toList();
     }
 
-    public VisaTransformableResponse createVisaTransformable(VisaTransformableRequest request) {
-        VisaTransformable visaTransformable = new VisaTransformable();
-        visaTransformable.setNumeroVisa(request.getNumeroVisa());
-        visaTransformable.setDemandeur(demandeurService.findEntity(request.getDemandeurId()));
-        visaTransformable.setPasseport(passeportRepository.findById(request.getPasseportId())
-                .orElseThrow(() -> new ResourceNotFoundException("Passeport introuvable: " + request.getPasseportId())));
-        return toResponse(visaTransformableRepository.save(visaTransformable));
-    }
+public VisaTransformableResponse createVisaTransformable(VisaTransformableRequest request) {
+
+    VisaTransformable visaTransformable = new VisaTransformable();
+
+    // ===== champs métier =====
+    visaTransformable.setNumeroVisa(request.getNumeroVisa());
+    // visaTransformable.setReference(request.getReference());
+    visaTransformable.setDateDelivrance(request.getDateDelivrance());
+    visaTransformable.setDateExpiration(request.getDateExpiration());
+
+    // ===== relations =====
+    visaTransformable.setDemandeur(
+        demandeurService.findEntity(request.getDemandeurId())
+    );
+
+    visaTransformable.setPasseport(
+        passeportRepository.findById(request.getPasseportId())
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Passeport introuvable: " + request.getPasseportId()
+            ))
+    );
+
+    // ===== save =====
+    VisaTransformable saved = visaTransformableRepository.save(visaTransformable);
+
+    return toResponse(saved);
+}
 
     public List<VisaTransformableResponse> getVisaTransformables(Long demandeurId) {
         if (demandeurId != null) {
