@@ -1,7 +1,16 @@
 package com.project.VISA.models;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "passeport")
@@ -13,31 +22,55 @@ public class Passeport {
     private Long id;
 
     @Column(name = "num_passeport")
-    private Integer numPasseport;
+    private String numeroPasseport;
 
     @Column(name = "date_expiration")
     private LocalDate dateExpiration;
 
-    @Column(name = "date_delivrance", length = 50)
-    private String dateDelivrance; // VARCHAR in SQL
+    @Column(name = "date_delivrance")
+    private LocalDate dateDelivrance;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_demandeur", nullable = false)
     private Demandeur demandeur;
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Integer getNumPasseport() { return numPasseport; }
-    public void setNumPasseport(Integer numPasseport) { this.numPasseport = numPasseport; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public LocalDate getDateExpiration() { return dateExpiration; }
-    public void setDateExpiration(LocalDate dateExpiration) { this.dateExpiration = dateExpiration; }
+    public String getNumeroPasseport() {
+        return numeroPasseport;
+    }
 
-    public String getDateDelivrance() { return dateDelivrance; }
-    public void setDateDelivrance(String dateDelivrance) { this.dateDelivrance = dateDelivrance; }
+    public void setNumeroPasseport(String numeroPasseport) {
+        this.numeroPasseport = numeroPasseport;
+    }
 
-    public Demandeur getDemandeur() { return demandeur; }
-    public void setDemandeur(Demandeur demandeur) { this.demandeur = demandeur; }
+    public LocalDate getDateExpiration() {
+        return dateExpiration;
+    }
+
+    public void setDateExpiration(LocalDate dateExpiration) {
+        this.dateExpiration = dateExpiration;
+    }
+
+    public LocalDate getDateDelivrance() {
+        return dateDelivrance;
+    }
+
+    public void setDateDelivrance(LocalDate dateDelivrance) {
+        this.dateDelivrance = dateDelivrance;
+    }
+
+    public Demandeur getDemandeur() {
+        return demandeur;
+    }
+
+    public void setDemandeur(Demandeur demandeur) {
+        this.demandeur = demandeur;
+    }
 }

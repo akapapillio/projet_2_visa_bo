@@ -1,9 +1,12 @@
 package com.project.VISA.repositories;
 
-import com.project.VISA.models.StatusDm;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.project.VISA.models.StatusDm;
+
 public interface StatusDmRepository extends JpaRepository<StatusDm, Long> {
+
+    Optional<StatusDm> findByCode(String code);
 }

@@ -1,60 +1,51 @@
 package com.project.VISA.models;
 
-import jakarta.persistence.*;
-import java.io.Serializable;
-import java.util.Objects;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "piece_demande")
 public class PieceDemande {
 
     @EmbeddedId
-    private PieceDemandeId id = new PieceDemandeId();
+    private PieceDemandeId id;
 
-    @ManyToOne
-    @MapsId("typeDmId")
-    @JoinColumn(name = "id_type_dm")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("typeDemandeId")
+    @JoinColumn(name = "id_type_dm", nullable = false)
     private TypeDemande typeDemande;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("categoriePieceId")
-    @JoinColumn(name = "id_categorie_piece")
+    @JoinColumn(name = "id_categorie_piece", nullable = false)
     private CategoriePiece categoriePiece;
 
-    public PieceDemandeId getId() { return id; }
-    public void setId(PieceDemandeId id) { this.id = id; }
-    public TypeDemande getTypeDemande() { return typeDemande; }
-    public void setTypeDemande(TypeDemande typeDemande) { this.typeDemande = typeDemande; }
-    public CategoriePiece getCategoriePiece() { return categoriePiece; }
-    public void setCategoriePiece(CategoriePiece categoriePiece) { this.categoriePiece = categoriePiece; }
+    public PieceDemandeId getId() {
+        return id;
+    }
 
-    @Embeddable
-    public static class PieceDemandeId implements Serializable {
-        private Long typeDmId;
-        private Long categoriePieceId;
+    public void setId(PieceDemandeId id) {
+        this.id = id;
+    }
 
-        public PieceDemandeId() {}
-        public PieceDemandeId(Long typeDmId, Long categoriePieceId) {
-            this.typeDmId = typeDmId;
-            this.categoriePieceId = categoriePieceId;
-        }
+    public TypeDemande getTypeDemande() {
+        return typeDemande;
+    }
 
-        public Long getTypeDmId() { return typeDmId; }
-        public void setTypeDmId(Long typeDmId) { this.typeDmId = typeDmId; }
-        public Long getCategoriePieceId() { return categoriePieceId; }
-        public void setCategoriePieceId(Long categoriePieceId) { this.categoriePieceId = categoriePieceId; }
+    public void setTypeDemande(TypeDemande typeDemande) {
+        this.typeDemande = typeDemande;
+    }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PieceDemandeId that = (PieceDemandeId) o;
-            return Objects.equals(typeDmId, that.typeDmId) && Objects.equals(categoriePieceId, that.categoriePieceId);
-        }
+    public CategoriePiece getCategoriePiece() {
+        return categoriePiece;
+    }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(typeDmId, categoriePieceId);
-        }
+    public void setCategoriePiece(CategoriePiece categoriePiece) {
+        this.categoriePiece = categoriePiece;
     }
 }

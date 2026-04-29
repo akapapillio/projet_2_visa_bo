@@ -1,228 +1,262 @@
 package com.project.VISA.config;
 
-import com.project.VISA.models.*;
-import com.project.VISA.repositories.*;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.project.VISA.models.CategoriePiece;
+import com.project.VISA.models.Nationalite;
+import com.project.VISA.models.PieceDemande;
+import com.project.VISA.models.PieceDemandeId;
+import com.project.VISA.models.SituationFam;
+import com.project.VISA.models.StatusDm;
+import com.project.VISA.models.TypeDemande;
+import com.project.VISA.models.TypeDemandeObjetMetierObligatoire;
+import com.project.VISA.models.TypeDemandeObjetMetierObligatoireId;
+import com.project.VISA.models.TypeObjet;
+import com.project.VISA.models.TypeVisa;
+import com.project.VISA.repositories.CategoriePieceRepository;
+import com.project.VISA.repositories.NationaliteRepository;
+import com.project.VISA.repositories.PieceDemandeRepository;
+import com.project.VISA.repositories.SituationFamRepository;
+import com.project.VISA.repositories.StatusDmRepository;
+import com.project.VISA.repositories.TypeDemandeObjetMetierObligatoireRepository;
+import com.project.VISA.repositories.TypeDemandeRepository;
+import com.project.VISA.repositories.TypeObjetRepository;
+import com.project.VISA.repositories.TypeVisaRepository;
 
 @Configuration
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initData(
-            TypeDemandeRepository typeRepo,
-            StatusDmRepository statusRepo,
-            NationaliteRepository natRepo,
-            SituationFamRepository sitRepo,
-            TypeVisaRepository visaTypeRepo,
-            CategoriePieceRepository catRepo,
-            PieceRepository pieceRepo,
-            PieceDemandeRepository pieceDemandeRepo) {
+    CommandLineRunner seedReferenceData(
+            TypeDemandeRepository typeDemandeRepository,
+            StatusDmRepository statusDmRepository,
+            NationaliteRepository nationaliteRepository,
+            SituationFamRepository situationFamRepository,
+            TypeVisaRepository typeVisaRepository,
+            CategoriePieceRepository categoriePieceRepository,
+            TypeObjetRepository typeObjetRepository,
+            PieceDemandeRepository pieceDemandeRepository,
+            TypeDemandeObjetMetierObligatoireRepository objetObligatoireRepository) {
         return args -> {
-            if (typeRepo.count() == 0) {
-                Arrays.asList("NOUVEAU_TITRE", "RENOUVELLEMENT", "DUPLICATA", "TRANSFERT_VISA", "RECUPERATION",
-                        "NOUVEAU_TITRE_TRAVAILLEUR", "NOUVEAU_TITRE_INVESTISSEUR", "NOUVEAU_VISA_TRANSFORMABLE")
-                        .forEach(name -> {
-                            TypeDemande t = new TypeDemande();
-                            t.setNom(name);
-                            typeRepo.save(t);
-                        });
-            }
-
-            if (statusRepo.count() == 0) {
-                StatusDm s1 = new StatusDm();
-                s1.setStatus("CREE");
-                s1.setObservation("Demande créée, en attente de vérification.");
-                statusRepo.save(s1);
-
-                StatusDm s2 = new StatusDm();
-                s2.setStatus("EN_COURS");
-                s2.setObservation("Dossier en cours d'examen.");
-                statusRepo.save(s2);
-
-                StatusDm s3 = new StatusDm();
-                s3.setStatus("DOCUMENTS_MANQUANTS");
-                s3.setObservation("Certaines pièces justificatives sont manquante.");
-                statusRepo.save(s3);
-
-                StatusDm s4 = new StatusDm();
-                s4.setStatus("VALIDE");
-                s4.setObservation("Dossier validé par le vérificateur.");
-                statusRepo.save(s4);
-            } else {
-                ensureStatus(statusRepo, "CREE", "Demande créée, en attente de vérification.");
-                ensureStatus(statusRepo, "EN_COURS", "Dossier en cours d'examen.");
-                ensureStatus(statusRepo, "DOCUMENTS_MANQUANTS", "Certaines pièces justificatives sont manquantes.");
-                ensureStatus(statusRepo, "VALIDE", "Dossier validé par le vérificateur.");
-            }
-
-            if (natRepo.count() == 0) {
-                Arrays.asList("Malagasy", "Française", "Américaine", "Chinoise", "Indienne")
-                        .forEach(n -> {
-                            Nationalite nat = new Nationalite();
-                            nat.setNom(n);
-                            natRepo.save(nat);
-                        });
-            } else {
-                ensureNationalite(natRepo, "Malgache");
-                ensureNationalite(natRepo, "Française");
-                ensureNationalite(natRepo, "Portugaise");
-                ensureNationalite(natRepo, "Américaine");
-                ensureNationalite(natRepo, "Chinoise");
-                ensureNationalite(natRepo, "Indienne");
-            }
-
-            if (sitRepo.count() == 0) {
-                Arrays.asList("Célibataire", "Marié(e)", "Divorcé(e)", "Veuf/Veuve")
-                        .forEach(s -> {
-                            SituationFam sit = new SituationFam();
-                            sit.setLibelle(s);
-                            sitRepo.save(sit);
-                        });
-            } else {
-                ensureSituation(sitRepo, "Célibataire");
-                ensureSituation(sitRepo, "Marié(e)");
-                ensureSituation(sitRepo, "Divorcé(e)");
-                ensureSituation(sitRepo, "Veuf/Veuve");
-            }
-
-            if (visaTypeRepo.count() == 0) {
-                Arrays.asList("COURT SEJOUR", "LONG SEJOUR", "TRANSFORMABLE", "TRAVAIL", "ENTREPRENEUR")
-                        .forEach(v -> {
-                            TypeVisa tv = new TypeVisa();
-                            tv.setLibelle(v);
-                            visaTypeRepo.save(tv);
-                        });
-            } else {
-                ensureTypeVisa(visaTypeRepo, "COURT SEJOUR");
-                ensureTypeVisa(visaTypeRepo, "LONG SEJOUR");
-                ensureTypeVisa(visaTypeRepo, "TRANSFORMABLE");
-                ensureTypeVisa(visaTypeRepo, "TRAVAIL");
-                ensureTypeVisa(visaTypeRepo, "ENTREPRENEUR");
-            }
-
-            if (catRepo.count() == 0) {
-                Arrays.asList("Photos", "Notice de renseignement", "Demande Ministre", "Copie Visa",
-                        "Copie Passeport", "Certificat de Résidence", "Casier Judiciaire", "Statut Société",
-                        "Extrait RC", "Carte Fiscale", "Autorisation Emploi", "Attestation Emploi")
-                        .forEach(c -> {
-                            CategoriePiece cp = new CategoriePiece();
-                            cp.setLibelle(c);
-                            catRepo.save(cp);
-                        });
-            } else {
-                ensureCategorie(catRepo, "Photos");
-                ensureCategorie(catRepo, "Notice de renseignement");
-                ensureCategorie(catRepo, "Demande Ministre");
-                ensureCategorie(catRepo, "Copie Visa");
-                ensureCategorie(catRepo, "Copie Passeport");
-                ensureCategorie(catRepo, "Certificat de Résidence");
-                ensureCategorie(catRepo, "Casier Judiciaire");
-                ensureCategorie(catRepo, "Statut Société");
-                ensureCategorie(catRepo, "Extrait RC");
-                ensureCategorie(catRepo, "Carte Fiscale");
-                ensureCategorie(catRepo, "Autorisation Emploi");
-                ensureCategorie(catRepo, "Attestation Emploi");
-            }
-
-            // Créer les Pieces par défaut
-            if (pieceRepo.count() == 0 && catRepo.count() > 0) {
-                catRepo.findAll().forEach(categorie -> {
-                    Piece piece = new Piece();
-                    piece.setCategoriePiece(categorie);
-                    pieceRepo.save(piece);
-                });
-            }
-
-            if (pieceDemandeRepo.count() == 0 && typeRepo.count() > 0 && catRepo.count() > 0) {
-                Map<String, CategoriePiece> catByLabel = catRepo.findAll().stream()
-                        .collect(Collectors.toMap(CategoriePiece::getLibelle, c -> c));
-
-                List<String> common = Arrays.asList(
-                        "Photos",
-                        "Notice de renseignement",
-                        "Demande Ministre",
-                        "Copie Visa",
-                        "Copie Passeport",
-                        "Certificat de Résidence",
-                        "Casier Judiciaire"
-                );
-                List<String> travail = Arrays.asList("Autorisation Emploi", "Attestation Emploi");
-                List<String> entrepreneur = Arrays.asList("Statut Société", "Extrait RC", "Carte Fiscale");
-
-                typeRepo.findAll().forEach(type -> {
-                    List<String> labels = new ArrayList<>(common);
-                    if ("NOUVEAU_TITRE_TRAVAILLEUR".equals(type.getNom())) {
-                        labels.addAll(travail);
-                    }
-                    if ("NOUVEAU_TITRE_INVESTISSEUR".equals(type.getNom())) {
-                        labels.addAll(entrepreneur);
-                    }
-
-                    labels.forEach(label -> {
-                        CategoriePiece cat = catByLabel.get(label);
-                        if (cat != null) {
-                            PieceDemande pd = new PieceDemande();
-                            pd.setTypeDemande(type);
-                            pd.setCategoriePiece(cat);
-                            pieceDemandeRepo.save(pd);
-                        }
-                    });
-                });
-            }
+            seedTypeDemandes(typeDemandeRepository);
+            seedStatus(statusDmRepository);
+            seedNationalites(nationaliteRepository);
+            seedSituations(situationFamRepository);
+            seedTypeVisa(typeVisaRepository);
+            seedCategoriesPiece(categoriePieceRepository);
+            seedTypesObjet(typeObjetRepository);
+            seedRules(typeDemandeRepository, typeObjetRepository, categoriePieceRepository,
+                    pieceDemandeRepository, objetObligatoireRepository);
         };
     }
 
-    private void ensureNationalite(NationaliteRepository repo, String nom) {
-        boolean exists = repo.findAll().stream().anyMatch(n -> n.getNom().equalsIgnoreCase(nom));
-        if (!exists) {
-            Nationalite nat = new Nationalite();
-            nat.setNom(nom);
-            repo.save(nat);
+    private void seedTypeDemandes(TypeDemandeRepository repository) {
+        if (repository.count() > 0) {
+            return;
+        }
+        createTypeDemande(repository, "NOUVEAU_TITRE");
+        createTypeDemande(repository, "CARTE_RESIDENT");
+        createTypeDemande(repository, "TRANSFERT_VISA");
+    }
+
+    private void seedStatus(StatusDmRepository repository) {
+        if (repository.count() > 0) {
+            return;
+        }
+        createStatus(repository, "DEMANDE_CREE", "Demande creee par agent");
+        createStatus(repository, "EN_COURS_ANALYSE", "Analyse des documents en cours");
+        createStatus(repository, "DOCUMENTS_MANQUANTS", "Pieces manquantes");
+        createStatus(repository, "DOCUMENTS_VALIDES", "Pieces valides");
+        createStatus(repository, "REFUSEE", "Demande refusee");
+        createStatus(repository, "APPROUVEE", "Demande approuvee");
+    }
+
+    private void seedNationalites(NationaliteRepository repository) {
+        if (repository.count() > 0) {
+            return;
+        }
+        createNationalite(repository, "MALGACHE");
+        createNationalite(repository, "FRANCAISE");
+        createNationalite(repository, "INDIENNE");
+        createNationalite(repository, "CHINOISE");
+        createNationalite(repository, "SUD_AFRICAINE");
+    }
+
+    private void seedSituations(SituationFamRepository repository) {
+        if (repository.count() > 0) {
+            return;
+        }
+        createSituation(repository, "CELIBATAIRE");
+        createSituation(repository, "MARIE");
+        createSituation(repository, "DIVORCE");
+        createSituation(repository, "VEUF");
+    }
+
+    private void seedTypeVisa(TypeVisaRepository repository) {
+        if (repository.count() > 0) {
+            return;
+        }
+        createTypeVisa(repository, "VISA_TRAVAIL");
+        createTypeVisa(repository, "VISA_ETUDIANT");
+        createTypeVisa(repository, "VISA_TOURISTIQUE");
+        createTypeVisa(repository, "VISA_INVESTISSEUR");
+    }
+
+    private void seedCategoriesPiece(CategoriePieceRepository repository) {
+        if (repository.count() > 0) {
+            return;
+        }
+        createCategoriePiece(repository, "PHOTO_IDENTITE");
+        createCategoriePiece(repository, "FORMULAIRE_DEMANDE");
+        createCategoriePiece(repository, "COPIE_PASSEPORT");
+        createCategoriePiece(repository, "COPIE_VISA");
+        createCategoriePiece(repository, "JUSTIFICATIF_DOMICILE");
+        createCategoriePiece(repository, "CONTRAT_TRAVAIL");
+        createCategoriePiece(repository, "ATTESTATION_EMPLOYEUR");
+        createCategoriePiece(repository, "CASIER_JUDICIAIRE");
+        createCategoriePiece(repository, "ACTE_NAISSANCE");
+        createCategoriePiece(repository, "CERTIFICAT_MARIAGE");
+    }
+
+    private void seedTypesObjet(TypeObjetRepository repository) {
+        if (repository.count() > 0) {
+            return;
+        }
+        createTypeObjet(repository, "PASSEPORT");
+        createTypeObjet(repository, "VISA");
+        createTypeObjet(repository, "VISA_TRANSFORMABLE");
+        createTypeObjet(repository, "ETAT_CIVIL");
+        createTypeObjet(repository, "CARTE_RESIDENT");
+    }
+
+    private void seedRules(
+            TypeDemandeRepository typeDemandeRepository,
+            TypeObjetRepository typeObjetRepository,
+            CategoriePieceRepository categoriePieceRepository,
+            PieceDemandeRepository pieceDemandeRepository,
+            TypeDemandeObjetMetierObligatoireRepository objetObligatoireRepository) {
+
+        Map<String, TypeDemande> typeMap = typeDemandeRepository.findAll().stream()
+                .collect(Collectors.toMap(TypeDemande::getNom, Function.identity()));
+        Map<String, TypeObjet> objetMap = typeObjetRepository.findAll().stream()
+                .collect(Collectors.toMap(TypeObjet::getNom, Function.identity()));
+        Map<String, CategoriePiece> pieceMap = categoriePieceRepository.findAll().stream()
+                .collect(Collectors.toMap(CategoriePiece::getLibelle, Function.identity()));
+
+        if (objetObligatoireRepository.count() == 0) {
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "NOUVEAU_TITRE", "PASSEPORT");
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "NOUVEAU_TITRE", "VISA");
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "NOUVEAU_TITRE", "VISA_TRANSFORMABLE");
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "NOUVEAU_TITRE", "ETAT_CIVIL");
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "TRANSFERT_VISA", "PASSEPORT");
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "TRANSFERT_VISA", "VISA");
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "CARTE_RESIDENT", "PASSEPORT");
+            createObjetRule(objetObligatoireRepository, typeMap, objetMap, "CARTE_RESIDENT", "ETAT_CIVIL");
+        }
+
+        if (pieceDemandeRepository.count() == 0) {
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "NOUVEAU_TITRE", "PHOTO_IDENTITE");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "NOUVEAU_TITRE", "FORMULAIRE_DEMANDE");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "NOUVEAU_TITRE", "COPIE_PASSEPORT");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "NOUVEAU_TITRE", "COPIE_VISA");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "NOUVEAU_TITRE", "JUSTIFICATIF_DOMICILE");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "NOUVEAU_TITRE", "CASIER_JUDICIAIRE");
+
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "TRANSFERT_VISA", "PHOTO_IDENTITE");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "TRANSFERT_VISA", "FORMULAIRE_DEMANDE");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "TRANSFERT_VISA", "COPIE_PASSEPORT");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "TRANSFERT_VISA", "COPIE_VISA");
+
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "CARTE_RESIDENT", "PHOTO_IDENTITE");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "CARTE_RESIDENT", "FORMULAIRE_DEMANDE");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "CARTE_RESIDENT", "COPIE_PASSEPORT");
+            createPieceRule(pieceDemandeRepository, typeMap, pieceMap, "CARTE_RESIDENT", "COPIE_VISA");
         }
     }
 
-    private void ensureSituation(SituationFamRepository repo, String libelle) {
-        boolean exists = repo.findAll().stream().anyMatch(s -> s.getLibelle().equalsIgnoreCase(libelle));
-        if (!exists) {
-            SituationFam sit = new SituationFam();
-            sit.setLibelle(libelle);
-            repo.save(sit);
+    private void createObjetRule(
+            TypeDemandeObjetMetierObligatoireRepository repository,
+            Map<String, TypeDemande> typeMap,
+            Map<String, TypeObjet> objetMap,
+            String typeDemande,
+            String typeObjet) {
+        TypeDemande td = typeMap.get(typeDemande);
+        TypeObjet to = objetMap.get(typeObjet);
+        if (td == null || to == null) {
+            return;
         }
+        TypeDemandeObjetMetierObligatoire item = new TypeDemandeObjetMetierObligatoire();
+        item.setId(new TypeDemandeObjetMetierObligatoireId(td.getId(), to.getId()));
+        item.setTypeDemande(td);
+        item.setTypeObjet(to);
+        item.setObligatoire(Boolean.TRUE);
+        repository.save(item);
     }
 
-    private void ensureCategorie(CategoriePieceRepository repo, String libelle) {
-        boolean exists = repo.findAll().stream().anyMatch(c -> c.getLibelle().equalsIgnoreCase(libelle));
-        if (!exists) {
-            CategoriePiece cp = new CategoriePiece();
-            cp.setLibelle(libelle);
-            repo.save(cp);
+    private void createPieceRule(
+            PieceDemandeRepository repository,
+            Map<String, TypeDemande> typeMap,
+            Map<String, CategoriePiece> pieceMap,
+            String typeDemande,
+            String categoriePiece) {
+        TypeDemande td = typeMap.get(typeDemande);
+        CategoriePiece cp = pieceMap.get(categoriePiece);
+        if (td == null || cp == null) {
+            return;
         }
+        PieceDemande item = new PieceDemande();
+        item.setId(new PieceDemandeId(td.getId(), cp.getId()));
+        item.setTypeDemande(td);
+        item.setCategoriePiece(cp);
+        repository.save(item);
     }
 
-    private void ensureStatus(StatusDmRepository repo, String status, String observation) {
-        boolean exists = repo.findAll().stream().anyMatch(s -> s.getStatus().equalsIgnoreCase(status));
-        if (!exists) {
-            StatusDm st = new StatusDm();
-            st.setStatus(status);
-            st.setObservation(observation);
-            repo.save(st);
-        }
+    private void createTypeDemande(TypeDemandeRepository repository, String nom) {
+        TypeDemande item = new TypeDemande();
+        item.setNom(nom);
+        repository.save(item);
     }
 
-    private void ensureTypeVisa(TypeVisaRepository repo, String libelle) {
-        boolean exists = repo.findAll().stream().anyMatch(v -> v.getLibelle().equalsIgnoreCase(libelle));
-        if (!exists) {
-            TypeVisa tv = new TypeVisa();
-            tv.setLibelle(libelle);
-            repo.save(tv);
-        }
+    private void createStatus(StatusDmRepository repository, String code, String observation) {
+        StatusDm item = new StatusDm();
+        item.setCode(code);
+        item.setObservation(observation);
+        repository.save(item);
+    }
+
+    private void createNationalite(NationaliteRepository repository, String libelle) {
+        Nationalite item = new Nationalite();
+        item.setLibelle(libelle);
+        repository.save(item);
+    }
+
+    private void createSituation(SituationFamRepository repository, String libelle) {
+        SituationFam item = new SituationFam();
+        item.setLibelle(libelle);
+        repository.save(item);
+    }
+
+    private void createTypeVisa(TypeVisaRepository repository, String libelle) {
+        TypeVisa item = new TypeVisa();
+        item.setLibelle(libelle);
+        repository.save(item);
+    }
+
+    private void createCategoriePiece(CategoriePieceRepository repository, String libelle) {
+        CategoriePiece item = new CategoriePiece();
+        item.setLibelle(libelle);
+        repository.save(item);
+    }
+
+    private void createTypeObjet(TypeObjetRepository repository, String nom) {
+        TypeObjet item = new TypeObjet();
+        item.setNom(nom);
+        repository.save(item);
     }
 }
