@@ -31,9 +31,9 @@ INSERT INTO situation_fam (situation_fam) VALUES
 
 INSERT INTO type_visa (libelle) VALUES
 ('VISA_TRAVAIL'),
-('VISA_ETUDIANT'),
-('VISA_TOURISTIQUE'),
 ('VISA_INVESTISSEUR');
+-- ('VISA_TOURISTIQUE'),
+-- ('VISA_ETUDIANT'),
 
 INSERT INTO categorie_piece (libelle) VALUES
 ('PHOTO_IDENTITE'),
@@ -59,9 +59,9 @@ INSERT INTO type_objet (nom_objet) VALUES
 -- NOUVEAU TITRE (id_type_dm = 1)
 INSERT INTO type_demande_objet_metier_obligatoire VALUES
 (1, 1, TRUE), -- PASSEPORT
-(1, 2, TRUE), -- VISA
-(1, 3, TRUE), -- VISA_TRANSFORMABLE
-(1, 4, TRUE); -- ETAT_CIVIL
+-- (1, 2, TRUE), -- VISA
+(1, 3, TRUE); -- VISA_TRANSFORMABLE
+-- (1, 4, TRUE); -- ETAT_CIVIL
 
 -- TRANSFERT VISA (id_type_dm = 3)
 INSERT INTO type_demande_objet_metier_obligatoire VALUES
@@ -71,7 +71,7 @@ INSERT INTO type_demande_objet_metier_obligatoire VALUES
 -- CARTE RESIDENT (id_type_dm = 2)
 INSERT INTO type_demande_objet_metier_obligatoire VALUES
 (2, 1, TRUE),
-(2, 4, TRUE);
+(2, 2, TRUE);
 
 
 
@@ -103,3 +103,6 @@ INSERT INTO piece_demande VALUES
 (2,2),
 (2,3),
 (2,4);
+
+
+-- sprint 3

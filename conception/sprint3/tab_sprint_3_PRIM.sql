@@ -89,7 +89,9 @@ CREATE TABLE passeport(
 
 CREATE TABLE visa_transformable(
    id_visa_transformable SERIAL,
+   date_expiration DATE,
    num_visa VARCHAR(50) ,
+   date_delivrance VARCHAR(50) ,
    id_passeport INTEGER NOT NULL,
    id_demandeur INTEGER NOT NULL,
    PRIMARY KEY(id_visa_transformable),
@@ -124,12 +126,10 @@ CREATE TABLE demande(
    id_demandeur INTEGER NOT NULL,
    id_status_dm INTEGER NOT NULL,
    id_type_dm INTEGER NOT NULL,
-   id_type_visa INTEGER,
    PRIMARY KEY(id_demande),
    FOREIGN KEY(id_demandeur) REFERENCES demandeur(id_demandeur),
    FOREIGN KEY(id_status_dm) REFERENCES status_dm(id_status_dm),
-   FOREIGN KEY(id_type_dm) REFERENCES type_demande(id_type_dm),
-   FOREIGN KEY(id_type_visa) REFERENCES type_visa(id_type_visa)
+   FOREIGN KEY(id_type_dm) REFERENCES type_demande(id_type_dm)
 );
 
 CREATE TABLE objet_utilise_demande(
