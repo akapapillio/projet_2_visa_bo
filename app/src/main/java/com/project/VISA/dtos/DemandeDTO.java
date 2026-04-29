@@ -5,15 +5,17 @@ import com.project.VISA.models.enums.TypeDemande;
 import java.time.LocalDate;
 
 public class DemandeDTO {
-    // Type d'application
-    private TypeDemande typeDemande;
-    private CategorieVisa categorieVisa;
+    // Type d'application (lookup par nom)
+    private String typeDemande;
+    private String typeVisa; // Remplace CategorieVisa
+    private Long idDemandeur; // Pour lier à un demandeur existant
 
     // Etat Civil
     private String lastName;
     private String firstNames;
     private String maidenName;
     private LocalDate birthDate;
+    private String birthPlace;
     private String maritalStatus;
     private String nationality;
     private String homeAddress;
@@ -48,11 +50,14 @@ public class DemandeDTO {
     // Getters and Setters missing for brevity
     // But lombok is not in pom, so generating standard getters/setters
 
-    public TypeDemande getTypeDemande() { return typeDemande; }
-    public void setTypeDemande(TypeDemande typeDemande) { this.typeDemande = typeDemande; }
+    public String getTypeDemande() { return typeDemande; }
+    public void setTypeDemande(String typeDemande) { this.typeDemande = typeDemande; }
 
-    public CategorieVisa getCategorieVisa() { return categorieVisa; }
-    public void setCategorieVisa(CategorieVisa categorieVisa) { this.categorieVisa = categorieVisa; }
+    public String getTypeVisa() { return typeVisa; }
+    public void setTypeVisa(String typeVisa) { this.typeVisa = typeVisa; }
+
+    public Long getIdDemandeur() { return idDemandeur; }
+    public void setIdDemandeur(Long idDemandeur) { this.idDemandeur = idDemandeur; }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
@@ -65,6 +70,9 @@ public class DemandeDTO {
 
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+
+    public String getBirthPlace() { return birthPlace; }
+    public void setBirthPlace(String birthPlace) { this.birthPlace = birthPlace; }
 
     public String getMaritalStatus() { return maritalStatus; }
     public void setMaritalStatus(String maritalStatus) { this.maritalStatus = maritalStatus; }

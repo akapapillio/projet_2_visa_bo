@@ -45,62 +45,40 @@ public class EtatCivilApiController {
     // ─── READ ALL ─────────────────────────────────────────────────────────────
 
     @GetMapping
-    public ResponseEntity<List<EtatCivil>> getAll() {
-        return ResponseEntity.ok(etatCivilService.findAll());
+    public ResponseEntity<?> getAll() {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Consultation restreinte (Sprint 2).");
     }
 
     // ─── READ ONE ─────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        return etatCivilService.findById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("EtatCivil introuvable avec l'id : " + id));
+    public ResponseEntity<?> getById(@PathVariable("id") Long id) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Consultation de l'ID " + id + " restreinte (Sprint 2).");
     }
 
     // ─── UPDATE ───────────────────────────────────────────────────────────────
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody EtatCivilDTO dto) {
-        try {
-            EtatCivil entity = toEntity(dto);
-            return etatCivilService.update(id, entity)
-                    .<ResponseEntity<?>>map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("EtatCivil introuvable avec l'id : " + id));
-        } catch (Exception e) {
-            return new ResponseEntity<>("Erreur lors de la mise à jour : " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody EtatCivilDTO dto) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Modification restreinte (Sprint 2).");
     }
 
     // ─── DELETE ───────────────────────────────────────────────────────────────
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        boolean deleted = etatCivilService.deleteById(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("EtatCivil introuvable avec l'id : " + id);
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body("Suppression restreinte (Sprint 2).");
     }
 
     // ─── Mapper DTO → Entity ──────────────────────────────────────────────────
 
     private EtatCivil toEntity(EtatCivilDTO dto) {
         EtatCivil entity = new EtatCivil();
-        entity.setNom(dto.getNom());
-        entity.setPrenoms(dto.getPrenoms());
-        entity.setNomJeuneFille(dto.getNomJeuneFille());
-        entity.setDateNaissance(dto.getDateNaissance());
-        entity.setSituationFamille(dto.getSituationFamille());
-        entity.setNationalite(dto.getNationalite());
-        entity.setDomicileHabituel(dto.getDomicileHabituel());
-        entity.setProfession(dto.getProfession());
-        entity.setEmployeur(dto.getEmployeur());
-        entity.setAdresseEmployeur(dto.getAdresseEmployeur());
+        // Les informations personnelles sont maintenant dans Demandeur.
         return entity;
     }
 }

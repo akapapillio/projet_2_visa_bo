@@ -31,16 +31,9 @@ public class EtatCivilService {
     @Transactional
     public Optional<EtatCivil> update(Long id, EtatCivil updated) {
         return etatCivilRepository.findById(id).map(existing -> {
-            existing.setNom(updated.getNom());
-            existing.setPrenoms(updated.getPrenoms());
-            existing.setNomJeuneFille(updated.getNomJeuneFille());
-            existing.setDateNaissance(updated.getDateNaissance());
-            existing.setSituationFamille(updated.getSituationFamille());
-            existing.setNationalite(updated.getNationalite());
-            existing.setDomicileHabituel(updated.getDomicileHabituel());
-            existing.setProfession(updated.getProfession());
-            existing.setEmployeur(updated.getEmployeur());
-            existing.setAdresseEmployeur(updated.getAdresseEmployeur());
+            // Dans le nouveau schéma, EtatCivil est une liaison technique vers Demandeur.
+            // On ne met à jour que le lien si nécessaire.
+            existing.setDemandeur(updated.getDemandeur());
             return etatCivilRepository.save(existing);
         });
     }
