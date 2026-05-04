@@ -1,7 +1,16 @@
 package com.project.VISA.models;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "visa")
@@ -12,63 +21,112 @@ public class Visa {
     @Column(name = "id_visa")
     private Long id;
 
-    @Column(name = "num_visa", length = 50)
-    private String numVisa;
+    @Column(name = "date_expiration")
+    private LocalDate dateExpiration;
+
+    @Column(name = "nom", nullable = false)
+    private String nom;
+
+    @Column(name = "prenom")
+    private String prenom;
+
+    @Column(name = "reference")
+    private String reference;
+
+    @Column(name = "num_visa")
+    private String numeroVisa;
 
     @Column(name = "date_delivrance")
     private LocalDate dateDelivrance;
 
-    @Column(name = "date_expiration")
-    private LocalDate dateExpiration;
-
-    @Column(name = "nom", length = 50, nullable = false)
-    private String nom;
-
-    @Column(name = "prenom", length = 50)
-    private String prenom;
-
-    @Column(name = "reference", length = 50)
-    private String reference;
-
-    @Column(name = "date_modification", length = 50)
+    @Column(name = "date_modification")
     private String dateModification;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_type_visa", nullable = false)
     private TypeVisa typeVisa;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_demandeur", nullable = false)
     private Demandeur demandeur;
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getNumVisa() { return numVisa; }
-    public void setNumVisa(String numVisa) { this.numVisa = numVisa; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public LocalDate getDateDelivrance() { return dateDelivrance; }
-    public void setDateDelivrance(LocalDate dateDelivrance) { this.dateDelivrance = dateDelivrance; }
+    public LocalDate getDateExpiration() {
+        return dateExpiration;
+    }
 
-    public LocalDate getDateExpiration() { return dateExpiration; }
-    public void setDateExpiration(LocalDate dateExpiration) { this.dateExpiration = dateExpiration; }
+    public void setDateExpiration(LocalDate dateExpiration) {
+        this.dateExpiration = dateExpiration;
+    }
 
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
+    public String getNom() {
+        return nom;
+    }
 
-    public String getPrenom() { return prenom; }
-    public void setPrenom(String prenom) { this.prenom = prenom; }
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
 
-    public String getReference() { return reference; }
-    public void setReference(String reference) { this.reference = reference; }
+    public String getPrenom() {
+        return prenom;
+    }
 
-    public String getDateModification() { return dateModification; }
-    public void setDateModification(String dateModification) { this.dateModification = dateModification; }
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
 
-    public TypeVisa getTypeVisa() { return typeVisa; }
-    public void setTypeVisa(TypeVisa typeVisa) { this.typeVisa = typeVisa; }
+    public String getReference() {
+        return reference;
+    }
 
-    public Demandeur getDemandeur() { return demandeur; }
-    public void setDemandeur(Demandeur demandeur) { this.demandeur = demandeur; }
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public String getNumeroVisa() {
+        return numeroVisa;
+    }
+
+    public void setNumeroVisa(String numeroVisa) {
+        this.numeroVisa = numeroVisa;
+    }
+
+    public LocalDate getDateDelivrance() {
+        return dateDelivrance;
+    }
+
+    public void setDateDelivrance(LocalDate dateDelivrance) {
+        this.dateDelivrance = dateDelivrance;
+    }
+
+    public String getDateModification() {
+        return dateModification;
+    }
+
+    public void setDateModification(String dateModification) {
+        this.dateModification = dateModification;
+    }
+
+    public TypeVisa getTypeVisa() {
+        return typeVisa;
+    }
+
+    public void setTypeVisa(TypeVisa typeVisa) {
+        this.typeVisa = typeVisa;
+    }
+
+    public Demandeur getDemandeur() {
+        return demandeur;
+    }
+
+    public void setDemandeur(Demandeur demandeur) {
+        this.demandeur = demandeur;
+    }
 }

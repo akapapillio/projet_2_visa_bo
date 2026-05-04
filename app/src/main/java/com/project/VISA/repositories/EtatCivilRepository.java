@@ -1,9 +1,14 @@
 package com.project.VISA.repositories;
 
-import com.project.VISA.models.EtatCivil;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.project.VISA.models.EtatCivil;
+
 public interface EtatCivilRepository extends JpaRepository<EtatCivil, Long> {
+
+    boolean existsByDemandeurId(Long demandeurId);
+
+    List<EtatCivil> findByDemandeurId(Long demandeurId);
 }

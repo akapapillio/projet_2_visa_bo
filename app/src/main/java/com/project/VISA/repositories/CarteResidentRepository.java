@@ -1,9 +1,14 @@
 package com.project.VISA.repositories;
 
-import com.project.VISA.models.CarteResident;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.project.VISA.models.CarteResident;
+
 public interface CarteResidentRepository extends JpaRepository<CarteResident, Long> {
+
+    boolean existsByDemandeurId(Long demandeurId);
+
+    List<CarteResident> findByDemandeurId(Long demandeurId);
 }

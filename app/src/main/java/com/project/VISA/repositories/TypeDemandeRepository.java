@@ -1,9 +1,12 @@
 package com.project.VISA.repositories;
 
-import com.project.VISA.models.TypeDemande;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.project.VISA.models.TypeDemande;
+
 public interface TypeDemandeRepository extends JpaRepository<TypeDemande, Long> {
+
+    Optional<TypeDemande> findByNom(String nom);
 }

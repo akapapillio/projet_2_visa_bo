@@ -1,11 +1,14 @@
 package com.project.VISA.repositories;
 
-import com.project.VISA.models.Passeport;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.project.VISA.models.Passeport;
+
 public interface PasseportRepository extends JpaRepository<Passeport, Long> {
+
+    boolean existsByDemandeurId(Long demandeurId);
+
     List<Passeport> findByDemandeurId(Long demandeurId);
 }

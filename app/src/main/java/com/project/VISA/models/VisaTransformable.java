@@ -1,7 +1,8 @@
 package com.project.VISA.models;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "visa_transformable")
@@ -12,8 +13,11 @@ public class VisaTransformable {
     @Column(name = "id_visa_transformable")
     private Long id;
 
-    @Column(name = "num_visa", length = 50)
-    private String numVisa;
+    @Column(name = "num_visa")
+    private String numeroVisa;
+
+    // @Column(name = "reference")
+    // private String reference;
 
     @Column(name = "date_delivrance")
     private LocalDate dateDelivrance;
@@ -21,31 +25,69 @@ public class VisaTransformable {
     @Column(name = "date_expiration")
     private LocalDate dateExpiration;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_passeport", nullable = false)
     private Passeport passeport;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_demandeur", nullable = false)
     private Demandeur demandeur;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ===== GETTERS / SETTERS =====
 
-    public String getNumVisa() { return numVisa; }
-    public void setNumVisa(String numVisa) { this.numVisa = numVisa; }
-    public String getNumeroVisa() { return numVisa; }
-    public void setNumeroVisa(String numeroVisa) { this.numVisa = numeroVisa; }
+    public Long getId() {
+        return id;
+    }
 
-    public LocalDate getDateDelivrance() { return dateDelivrance; }
-    public void setDateDelivrance(LocalDate dateDelivrance) { this.dateDelivrance = dateDelivrance; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public LocalDate getDateExpiration() { return dateExpiration; }
-    public void setDateExpiration(LocalDate dateExpiration) { this.dateExpiration = dateExpiration; }
+    public String getNumeroVisa() {
+        return numeroVisa;
+    }
 
-    public Passeport getPasseport() { return passeport; }
-    public void setPasseport(Passeport passeport) { this.passeport = passeport; }
+    public void setNumeroVisa(String numeroVisa) {
+        this.numeroVisa = numeroVisa;
+    }
 
-    public Demandeur getDemandeur() { return demandeur; }
-    public void setDemandeur(Demandeur demandeur) { this.demandeur = demandeur; }
+    // public String getReference() {
+    //     return reference;
+    // }
+
+    // public void setReference(String reference) {
+    //     this.reference = reference;
+    // }
+
+    public LocalDate getDateDelivrance() {
+        return dateDelivrance;
+    }
+
+    public void setDateDelivrance(LocalDate dateDelivrance) {
+        this.dateDelivrance = dateDelivrance;
+    }
+
+    public LocalDate getDateExpiration() {
+        return dateExpiration;
+    }
+
+    public void setDateExpiration(LocalDate dateExpiration) {
+        this.dateExpiration = dateExpiration;
+    }
+
+    public Passeport getPasseport() {
+        return passeport;
+    }
+
+    public void setPasseport(Passeport passeport) {
+        this.passeport = passeport;
+    }
+
+    public Demandeur getDemandeur() {
+        return demandeur;
+    }
+
+    public void setDemandeur(Demandeur demandeur) {
+        this.demandeur = demandeur;
+    }
 }

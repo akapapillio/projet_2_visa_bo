@@ -1,420 +1,197 @@
 package com.project.VISA.services;
 
-import com.project.VISA.dtos.DemandeDTO;
-import com.project.VISA.dtos.DemandePieceStatusDTO;
-import com.project.VISA.models.*;
-import com.project.VISA.repositories.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.project.VISA.dtos.DemandeRequest;
+import com.project.VISA.dtos.DemandeResponse;
+import com.project.VISA.dtos.DemandeValidationResponse;
+import com.project.VISA.models.Demande;
+import com.project.VISA.models.TypeVisa;
+import com.project.VISA.repositories.CarteResidentRepository;
+import com.project.VISA.repositories.DemandeRepository;
+import com.project.VISA.repositories.EtatCivilRepository;
+import com.project.VISA.repositories.PasseportRepository;
+import com.project.VISA.repositories.PieceDemandeRepository;
+import com.project.VISA.repositories.PieceRepository;
+import com.project.VISA.repositories.StatusDmRepository;
+import com.project.VISA.repositories.TypeDemandeObjetMetierObligatoireRepository;
+import com.project.VISA.repositories.TypeDemandeRepository;
+import com.project.VISA.repositories.TypeVisaRepository;
+import com.project.VISA.repositories.VisaRepository;
+import com.project.VISA.repositories.VisaTransformableRepository;
 
 @Service
 public class DemandeService {
 
-    @Autowired private DemandeRepository demandeRepository;
-    @Autowired private DemandeurRepository demandeurRepository;
-    @Autowired private EtatCivilRepository etatCivilRepository;
-    @Autowired private PasseportRepository passeportRepository;
-    @Autowired private TypeDemandeRepository typeDemandeRepository;
-    @Autowired private StatusDmRepository statusDmRepository;
-    @Autowired private NationaliteRepository nationaliteRepository;
-    @Autowired private SituationFamRepository situationFamRepository;
-    @Autowired private PieceRepository pieceRepository;
-    @Autowired private TypeVisaRepository typeVisaRepository;
-    @Autowired private VisaRepository visaRepository;
-    @Autowired private DemandePieceRepository demandePieceRepository;
-    @Autowired private PieceDemandeRepository pieceDemandeRepository;
-    @Autowired private CategoriePieceRepository categoriePieceRepository;
-    @Autowired private VisaTransformableRepository visaTransformableRepository;
+    private final DemandeRepository demandeRepository;
+    private final DemandeurService demandeurService;
+    private final TypeDemandeRepository typeDemandeRepository;
+    private final StatusDmRepository statusDmRepository;
+    private final TypeVisaRepository typeVisaRepository;
+    private final PieceDemandeRepository pieceDemandeRepository;
+    private final TypeDemandeObjetMetierObligatoireRepository objetMetierObligatoireRepository;
+    private final PieceRepository pieceRepository;
+    private final PasseportRepository passeportRepository;
+    private final VisaRepository visaRepository;
+    private final VisaTransformableRepository visaTransformableRepository;
+    private final EtatCivilRepository etatCivilRepository;
+    private final CarteResidentRepository carteResidentRepository;
 
-    // ─── CREATE ───────────────────────────────────────────────────────────────
+    public DemandeService(
+            DemandeRepository demandeRepository,
+            DemandeurService demandeurService,
+            TypeDemandeRepository typeDemandeRepository,
+            StatusDmRepository statusDmRepository,
+            TypeVisaRepository typeVisaRepository,
+            PieceDemandeRepository pieceDemandeRepository,
+            TypeDemandeObjetMetierObligatoireRepository objetMetierObligatoireRepository,
+            PieceRepository pieceRepository,
+            PasseportRepository passeportRepository,
+            VisaRepository visaRepository,
+            VisaTransformableRepository visaTransformableRepository,
+            EtatCivilRepository etatCivilRepository,
+            CarteResidentRepository carteResidentRepository) {
+        this.demandeRepository = demandeRepository;
+        this.demandeurService = demandeurService;
+        this.typeDemandeRepository = typeDemandeRepository;
+        this.statusDmRepository = statusDmRepository;
+        this.typeVisaRepository = typeVisaRepository;
+        this.pieceDemandeRepository = pieceDemandeRepository;
+        this.objetMetierObligatoireRepository = objetMetierObligatoireRepository;
+        this.pieceRepository = pieceRepository;
+        this.passeportRepository = passeportRepository;
+        this.visaRepository = visaRepository;
+        this.visaTransformableRepository = visaTransformableRepository;
+        this.etatCivilRepository = etatCivilRepository;
+        this.carteResidentRepository = carteResidentRepository;
+    }
 
-    @Transactional
-    public Demande creerNouvelleDemande(DemandeDTO dto) {
-        // 1. Créer d'abord l'EtatCivil
-        EtatCivil etatCivil = new EtatCivil();
-        etatCivil.setNom(dto.getLastName());
-        etatCivil.setPrenoms(dto.getFirstNames());
-        etatCivil.setNomJeuneFille(dto.getMaidenName());
-        etatCivil.setDateNaissance(dto.getBirthDate());
-        etatCivil.setLieuNaissance(dto.getBirthPlace());
-        etatCivil.setSituationFamille(dto.getMaritalStatus());
-        etatCivil.setNationalite(dto.getNationality());
-        etatCivil.setDomicileHabituel(dto.getHomeAddress());
-        etatCivil.setProfession(dto.getOccupation());
-        etatCivil.setEmployeur(dto.getEmployerName());
-        etatCivil.setAdresseEmployeur(dto.getEmployerAddress());
-        etatCivil = etatCivilRepository.save(etatCivil);
+    public List<DemandeResponse> findAll() {
+        return demandeRepository.findAll().stream().map(this::toResponse).toList();
+    }
 
-        // 2. Gérer le Demandeur (lié à EtatCivil)
-        Demandeur demandeur;
+    public List<DemandeResponse> findByDemandeur(Long demandeurId) {
+        return demandeRepository.findByDemandeurId(demandeurId).stream().map(this::toResponse).toList();
+    }
 
-        if (dto.getIdDemandeur() != null) {
-            demandeur = demandeurRepository.findById(dto.getIdDemandeur())
-                    .orElseThrow(() -> new RuntimeException("Demandeur non trouvé avec l'id : " + dto.getIdDemandeur()));
-        } else {
-            demandeur = new Demandeur();
-            demandeur.setEtatCivil(etatCivil);
-            demandeur.setNom(dto.getLastName());
-            demandeur.setPrenom(dto.getFirstNames());
-            demandeur.setDateNaissance(dto.getBirthDate());
+    public DemandeResponse findById(Long id) {
+        return toResponse(findEntity(id));
+    }
 
-            Nationalite nat = nationaliteRepository.findAll().stream()
-                    .filter(n -> n.getNom().equalsIgnoreCase(dto.getNationality()))
-                    .findFirst().orElse(null);
-            demandeur.setNationalite(nat);
-
-            SituationFam sit = situationFamRepository.findAll().stream()
-                    .filter(s -> s.getLibelle().equalsIgnoreCase(dto.getMaritalStatus()))
-                    .findFirst().orElse(null);
-            demandeur.setSituationFamille(sit);
-
-            Piece p = pieceRepository.findAll().stream().findFirst().orElse(null);
-            demandeur.setPiecePrincipale(p);
-
-            demandeur = demandeurRepository.save(demandeur);
-
-            // Mettre à jour EtatCivil avec le Demandeur
-            etatCivil.setDemandeur(demandeur);
-            etatCivilRepository.save(etatCivil);
-        }
-
-        // 3. Gérer le Passeport
-        Passeport passeport = new Passeport();
-        passeport.setDemandeur(demandeur);
-        passeportRepository.save(passeport);
-
-        // 3b. Gérer le Visa avec le TypeVisa
-        if (dto.getTypeVisa() != null && !dto.getTypeVisa().isEmpty()) {
-            Visa visa = new Visa();
-            visa.setDemandeur(demandeur);
-            visa.setNom(demandeur.getNom());
-            visa.setPrenom(demandeur.getPrenom());
-
-            TypeVisa typeVisa = typeVisaRepository.findAll().stream()
-                    .filter(tv -> tv.getLibelle().equalsIgnoreCase(dto.getTypeVisa()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (typeVisa != null) {
-                visa.setTypeVisa(typeVisa);
-                visaRepository.save(visa);
-            }
-        }
-
-        // 3c. Gérer le Visa Transformable (visa précédent)
-        if (dto.getNumeroVisaPrcd() != null || dto.getDateDelivranceVisaPrcd() != null || dto.getDateExpirationVisaPrcd() != null) {
-            VisaTransformable visaTransformable = new VisaTransformable();
-            visaTransformable.setDemandeur(demandeur);
-            visaTransformable.setPasseport(passeport);
-
-            if (dto.getNumeroVisaPrcd() != null) {
-                visaTransformable.setNumVisa(dto.getNumeroVisaPrcd());
-            }
-            if (dto.getDateDelivranceVisaPrcd() != null) {
-                visaTransformable.setDateDelivrance(dto.getDateDelivranceVisaPrcd());
-            }
-            if (dto.getDateExpirationVisaPrcd() != null) {
-                visaTransformable.setDateExpiration(dto.getDateExpirationVisaPrcd());
-            }
-
-            visaTransformableRepository.save(visaTransformable);
-        }
-
-        // 4. Gérer la Demande
+    public DemandeResponse create(DemandeRequest request) {
         Demande demande = new Demande();
-        demande.setDemandeur(demandeur);
-
-        TypeDemande type = typeDemandeRepository.findAll().stream()
-                .filter(t -> t.getNom().equalsIgnoreCase(dto.getTypeDemande()))
-                .findFirst().orElseThrow(() -> new RuntimeException("Type de demande inconnu : " + dto.getTypeDemande()));
-        demande.setTypeDemande(type);
-
-        // Statut Initial "CREE" (fallback si absent)
-        StatusDm status = statusDmRepository.findAll().stream()
-                .filter(s -> "CREE".equalsIgnoreCase(s.getStatus()))
-                .findFirst()
-                .orElse(null);
-        if (status == null) {
-            List<StatusDm> allStatus = statusDmRepository.findAll();
-            if (!allStatus.isEmpty()) {
-                status = allStatus.get(0);
-            } else {
-                StatusDm created = new StatusDm();
-                created.setStatus("CREE");
-                created.setObservation("Demande creee");
-                status = statusDmRepository.save(created);
-            }
-        }
-        demande.setStatus(status);
-
-        demande = demandeRepository.save(demande);
-
-        // 5. Initialiser les pièces requises pour ce type de demande
-        initializePiecesForDemande(demande);
-
-        // 6. Déclencher le Vérificateur (Simple constat par défaut pour ce sprint)
-        declencherVerificateur(demande, dto);
-
-        return demandeRepository.save(demande);
+        applyRequest(request, demande, true);
+        return toResponse(demandeRepository.save(demande));
     }
 
-    private void declencherVerificateur(Demande demande, DemandeDTO dto) {
-        StringBuilder constat = new StringBuilder();
-        
-        // Exemple de logique de vérification simple basée sur les booleans du DTO
-        if (!dto.isaFourniPhotos()) constat.append("Manque Photos; ");
-        if (!dto.isaFourniCopiePasseport()) constat.append("Manque Copie Passeport; ");
-        
-        if (constat.length() > 0) {
-            StatusDm currentStatus = demande.getStatus();
-            if (currentStatus != null) {
-                currentStatus.setObservation("Constat : " + constat.toString());
-                statusDmRepository.save(currentStatus);
-            }
-        }
+    public DemandeResponse update(Long id, DemandeRequest request) {
+        Demande demande = findEntity(id);
+        applyRequest(request, demande, false);
+        return toResponse(demandeRepository.save(demande));
     }
 
-    // ─── READ ─────────────────────────────────────────────────────────────────
-
-    public List<Demande> findAll() {
-        return demandeRepository.findAll();
+    public void delete(Long id) {
+        demandeRepository.delete(findEntity(id));
     }
 
-    public Optional<Demande> findById(Long id) {
-        return demandeRepository.findById(id);
-    }
+    public DemandeValidationResponse validate(Long demandeId) {
+        Demande demande = findEntity(demandeId);
+        Long typeDemandeId = demande.getTypeDemande().getId();
+        Long demandeurId = demande.getDemandeur().getId();
 
-    // ─── UPDATE ───────────────────────────────────────────────────────────────
-
-    @Transactional
-    public Optional<Demande> update(Long id, DemandeDTO dto) {
-        return demandeRepository.findById(id).map(existing -> {
-            Demandeur demandeur = existing.getDemandeur();
-            EtatCivil etatCivil = demandeur.getEtatCivil();
-
-            // Mettre à jour le Demandeur
-            if (dto.getLastName() != null) demandeur.setNom(dto.getLastName());
-            if (dto.getFirstNames() != null) demandeur.setPrenom(dto.getFirstNames());
-            if (dto.getBirthDate() != null) demandeur.setDateNaissance(dto.getBirthDate());
-
-            if (dto.getNationality() != null) {
-                Nationalite nat = nationaliteRepository.findAll().stream()
-                        .filter(n -> n.getNom().equalsIgnoreCase(dto.getNationality()))
-                        .findFirst().orElse(null);
-                demandeur.setNationalite(nat);
+        List<String> piecesManquantes = new ArrayList<>();
+        pieceDemandeRepository.findByTypeDemandeId(typeDemandeId).forEach(rule -> {
+            boolean hasValidPiece = pieceRepository.existsByDemandeurIdAndCategoriePieceIdAndValideTrue(
+                    demandeurId,
+                    rule.getCategoriePiece().getId());
+            if (!hasValidPiece) {
+                piecesManquantes.add(rule.getCategoriePiece().getLibelle());
             }
-
-            if (dto.getMaritalStatus() != null) {
-                SituationFam sit = situationFamRepository.findAll().stream()
-                        .filter(s -> s.getLibelle().equalsIgnoreCase(dto.getMaritalStatus()))
-                        .findFirst().orElse(null);
-                demandeur.setSituationFamille(sit);
-            }
-
-            demandeurRepository.save(demandeur);
-
-            // Mettre à jour EtatCivil aussi
-            if (etatCivil != null) {
-                if (dto.getLastName() != null) etatCivil.setNom(dto.getLastName());
-                if (dto.getFirstNames() != null) etatCivil.setPrenoms(dto.getFirstNames());
-                if (dto.getMaidenName() != null) etatCivil.setNomJeuneFille(dto.getMaidenName());
-                if (dto.getBirthDate() != null) etatCivil.setDateNaissance(dto.getBirthDate());
-                if (dto.getBirthPlace() != null) etatCivil.setLieuNaissance(dto.getBirthPlace());
-                if (dto.getMaritalStatus() != null) etatCivil.setSituationFamille(dto.getMaritalStatus());
-                if (dto.getNationality() != null) etatCivil.setNationalite(dto.getNationality());
-                if (dto.getHomeAddress() != null) etatCivil.setDomicileHabituel(dto.getHomeAddress());
-                if (dto.getOccupation() != null) etatCivil.setProfession(dto.getOccupation());
-                if (dto.getEmployerName() != null) etatCivil.setEmployeur(dto.getEmployerName());
-                if (dto.getEmployerAddress() != null) etatCivil.setAdresseEmployeur(dto.getEmployerAddress());
-                etatCivilRepository.save(etatCivil);
-            }
-
-            // Mettre à jour le Type de Demande si fourni
-            if (dto.getTypeDemande() != null) {
-                TypeDemande type = typeDemandeRepository.findAll().stream()
-                        .filter(t -> t.getNom().equalsIgnoreCase(dto.getTypeDemande()))
-                        .findFirst().orElse(null);
-                if (type != null) {
-                    existing.setTypeDemande(type);
-                }
-            }
-
-            // Mettre à jour le Visa Transformable
-            if (dto.getNumeroVisaPrcd() != null || dto.getDateDelivranceVisaPrcd() != null || dto.getDateExpirationVisaPrcd() != null) {
-                var visaTransformableOpt = visaTransformableRepository.findByDemandeurId(demandeur.getId()).stream().findFirst();
-                VisaTransformable visaTransformable;
-
-                if (visaTransformableOpt.isPresent()) {
-                    visaTransformable = visaTransformableOpt.get();
-                } else {
-                    visaTransformable = new VisaTransformable();
-                    visaTransformable.setDemandeur(demandeur);
-                    // Récupérer le premier passeport du demandeur
-                    var passeportOpt = getPasseportForDemandeur(demandeur.getId());
-                    if (passeportOpt.isPresent()) {
-                        visaTransformable.setPasseport(passeportOpt.get());
-                    }
-                }
-
-                if (dto.getNumeroVisaPrcd() != null) {
-                    visaTransformable.setNumVisa(dto.getNumeroVisaPrcd());
-                }
-                if (dto.getDateDelivranceVisaPrcd() != null) {
-                    visaTransformable.setDateDelivrance(dto.getDateDelivranceVisaPrcd());
-                }
-                if (dto.getDateExpirationVisaPrcd() != null) {
-                    visaTransformable.setDateExpiration(dto.getDateExpirationVisaPrcd());
-                }
-
-                visaTransformableRepository.save(visaTransformable);
-            }
-
-            // Re-déclencher la vérification
-            declencherVerificateur(existing, dto);
-
-            return demandeRepository.save(existing);
         });
+
+        List<String> objetsManquants = new ArrayList<>();
+        objetMetierObligatoireRepository.findByTypeDemandeIdAndObligatoireTrue(typeDemandeId).forEach(rule -> {
+            String objet = rule.getTypeObjet().getNom();
+            boolean present = switch (objet.toUpperCase()) {
+                case "PASSEPORT" -> passeportRepository.existsByDemandeurId(demandeurId);
+                case "VISA" -> visaRepository.existsByDemandeurId(demandeurId);
+                case "VISA_TRANSFORMABLE" -> visaTransformableRepository.existsByDemandeurId(demandeurId);
+                case "ETAT_CIVIL" -> etatCivilRepository.existsByDemandeurId(demandeurId);
+                case "CARTE_RESIDENT" -> carteResidentRepository.existsByDemandeurId(demandeurId);
+                default -> false;
+            };
+            if (!present) {
+                objetsManquants.add(objet);
+            }
+        });
+
+        DemandeValidationResponse response = new DemandeValidationResponse();
+        response.setDemandeId(demande.getId());
+        response.setPiecesManquantes(piecesManquantes);
+        response.setObjetsManquants(objetsManquants);
+        response.setValide(piecesManquantes.isEmpty() && objetsManquants.isEmpty());
+        return response;
     }
 
-    // ─── DELETE ───────────────────────────────────────────────────────────────
+    public Demande findEntity(Long id) {
+        return demandeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Demande introuvable: " + id));
+    }
 
-    @Transactional
-    public boolean deleteById(Long id) {
-        if (demandeRepository.existsById(id)) {
-            demandeRepository.deleteById(id);
-            return true;
+    private void applyRequest(DemandeRequest request, Demande demande, boolean createMode) {
+        demande.setDemandeur(demandeurService.findEntity(request.getDemandeurId()));
+
+        var typeDemande = typeDemandeRepository.findById(request.getTypeDemandeId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Type demande introuvable: " + request.getTypeDemandeId()));
+        demande.setTypeDemande(typeDemande);
+
+        boolean nouveauTitre = "NOUVEAU_TITRE".equalsIgnoreCase(typeDemande.getNom());
+        if (nouveauTitre) {
+            if (request.getTypeVisaId() == null) {
+                throw new BusinessValidationException("Le type de visa est obligatoire pour un nouveau titre.");
+            }
+            TypeVisa typeVisa = typeVisaRepository.findById(request.getTypeVisaId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Type visa introuvable: " + request.getTypeVisaId()));
+            demande.setTypeVisa(typeVisa);
+        } else {
+            demande.setTypeVisa(null);
         }
-        return false;
-    }
 
-    // ─── PIECES ────────────────────────────────────────────────────────────────
-
-    /**
-     * Ajouter/initialiser les pièces requises pour une demande selon son type
-     */
-    @Transactional
-    public void initializePiecesForDemande(Demande demande) {
-        TypeDemande typeDemande = demande.getTypeDemande();
-
-        // Récupérer les pièces requises pour ce type de demande
-        List<PieceDemande> requiredPieces = pieceDemandeRepository.findByTypeDmId(typeDemande.getId());
-
-        if (requiredPieces.isEmpty()) {
-            categoriePieceRepository.findAll().forEach(cat -> {
-                DemandePiece demandePiece = new DemandePiece(demande, cat);
-                demande.addPiece(demandePiece);
-            });
-            demandeRepository.save(demande);
+        if (request.getStatusId() != null) {
+            var status = statusDmRepository.findById(request.getStatusId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Status introuvable: " + request.getStatusId()));
+            demande.setStatus(status);
             return;
         }
 
-        for (PieceDemande pieceDemande : requiredPieces) {
-            // Vérifier si la pièce n'existe pas déjà
-            boolean exists = demande.getPieces().stream()
-                    .anyMatch(dp -> dp.getCategoriePiece().getId().equals(pieceDemande.getCategoriePiece().getId()));
-
-            if (!exists) {
-                DemandePiece demandePiece = new DemandePiece(demande, pieceDemande.getCategoriePiece());
-                demande.addPiece(demandePiece);
-            }
+        if (createMode) {
+            var defaultStatus = statusDmRepository.findByCode("DEMANDE_CREE")
+                    .orElseThrow(() -> new BusinessValidationException(
+                            "Status DEMANDE_CREE absent en base. Ajouter les donnees de reference."));
+            demande.setStatus(defaultStatus);
         }
-
-        demandeRepository.save(demande);
     }
 
-    /**
-     * Mettre à jour le statut de plusieurs pièces en une seule transaction
-     */
-    @Transactional
-    public void updateMultiplePiecesStatus(Long demandeId, List<DemandePieceStatusDTO> pieceDtos) {
-        Demande demande = demandeRepository.findById(demandeId)
-            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
-
-        if (pieceDtos != null) {
-            for (DemandePieceStatusDTO dto : pieceDtos) {
-                if (dto.getCategoriePieceId() != null && dto.getIsProvided() != null) {
-                    DemandePiece demandePiece = demande.getPieces().stream()
-                        .filter(dp -> dp.getCategoriePiece() != null
-                            && dto.getCategoriePieceId().equals(dp.getCategoriePiece().getId()))
-                        .findFirst()
-                        .orElse(null);
-
-                    if (demandePiece == null) {
-                        CategoriePiece categoriePiece = categoriePieceRepository.findById(dto.getCategoriePieceId())
-                            .orElseThrow(() -> new RuntimeException("Catégorie de pièce non trouvée"));
-                        demandePiece = new DemandePiece(demande, categoriePiece);
-                        demande.addPiece(demandePiece);
-                    }
-                    demandePiece.setIsProvided(dto.getIsProvided());
-                }
-            }
+    private DemandeResponse toResponse(Demande demande) {
+        DemandeResponse response = new DemandeResponse();
+        response.setId(demande.getId());
+        response.setCreatedAt(demande.getCreatedAt());
+        response.setUpdatedAt(demande.getUpdatedAt());
+        response.setDemandeurId(demande.getDemandeur().getId());
+        response.setNomDemandeur(demande.getDemandeur().getNom() + " " + demande.getDemandeur().getPrenom());
+        response.setStatusId(demande.getStatus().getId());
+        response.setStatus(demande.getStatus().getCode());
+        response.setTypeDemandeId(demande.getTypeDemande().getId());
+        response.setTypeDemande(demande.getTypeDemande().getNom());
+        if (demande.getTypeVisa() != null) {
+            response.setTypeVisaId(demande.getTypeVisa().getId());
+            response.setTypeVisa(demande.getTypeVisa().getLibelle());
         }
-        demandeRepository.save(demande);
-    }
-
-    /**
-     * Mettre à jour le statut d'une pièce pour une demande
-     */
-    @Transactional
-    public DemandePiece updatePieceStatus(Long demandeId, Long categoriePieceId, Boolean isProvided) {
-        DemandePiece demandePiece = demandePieceRepository
-            .findByDemandeIdAndCategoriePieceId(demandeId, categoriePieceId)
-            .orElse(null);
-
-        if (demandePiece == null) {
-            Demande demande = demandeRepository.findById(demandeId)
-                .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
-
-            // Evite de creer un doublon si la piece est deja attachee a la demande
-            demandePiece = demande.getPieces().stream()
-                .filter(dp -> dp.getCategoriePiece() != null
-                    && categoriePieceId.equals(dp.getCategoriePiece().getId()))
-                .findFirst()
-                .orElse(null);
-
-            if (demandePiece == null) {
-            CategoriePiece categoriePiece = categoriePieceRepository.findById(categoriePieceId)
-                .orElseThrow(() -> new RuntimeException("Catégorie de pièce non trouvée"));
-
-            DemandePiece newDemandePiece = new DemandePiece(demande, categoriePiece);
-            demande.addPiece(newDemandePiece);
-            demandePiece = newDemandePiece;
-            }
-        }
-
-        demandePiece.setIsProvided(isProvided);
-        return demandePieceRepository.save(demandePiece);
-    }
-
-    /**
-     * Récupérer toutes les pièces d'une demande
-     */
-    public List<DemandePiece> getPiecesForDemande(Long demandeId) {
-        return demandePieceRepository.findByDemandeId(demandeId);
-    }
-
-    /**
-     * Récupérer le passeport d'un demandeur
-     */
-    public Optional<Passeport> getPasseportForDemandeur(Long demandeurId) {
-        return passeportRepository.findByDemandeurId(demandeurId).stream().findFirst();
-    }
-
-    /**
-     * Récupérer le visa d'un demandeur
-     */
-    public Optional<Visa> getVisaForDemandeur(Long demandeurId) {
-        return visaRepository.findByDemandeurId(demandeurId).stream().findFirst();
-    }
-
-    /**
-     * Récupérer le visa transformable d'un demandeur
-     */
-    public Optional<VisaTransformable> getVisaTransformableForDemandeur(Long demandeurId) {
-        return visaTransformableRepository.findByDemandeurId(demandeurId).stream().findFirst();
+        return response;
     }
 }
