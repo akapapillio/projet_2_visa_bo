@@ -1,5 +1,5 @@
 pseudo des contributeur : 
-- [akapapillio] alias Nalitiana
+- [akapapillio] alias Nalitiana 
 - [Vats0528]    alias Vatosoa
 - [AkinyA0398]  alias Kiady
 
@@ -13,13 +13,13 @@ pseudo des contributeur :
 ## Feature: Capture Photo et Signature par Webcam
 
 ### Description
-Implémenter un mécanisme permettant aux utilisateurs de capturer une photo via webcam et de dessiner une signature avant de terminer le scan d'une demande VISA. 
+Implémenter un mécanisme permettant aux utilisateurs de capturer une photo via webcam et de dessiner une signature avant de commencer le scan d'une demande VISA. 
 
 ### Flux utilisateur
 ```
 Créer demande 
   ↓
-Photo et Signature (status: capture photo + signature)
+Photo et Signature (status: capture photo + signature) [Avant de commencer le scan]
   ├─ Si validé ✓ → Scan terminé ✓
   └─ Si refusé ✗ → Refus de demande (scan non terminé)
 ```
