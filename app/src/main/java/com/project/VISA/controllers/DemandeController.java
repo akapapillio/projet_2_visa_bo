@@ -3,20 +3,15 @@ package com.project.VISA.controllers;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.VISA.dtos.DemandeRequest;
 import com.project.VISA.dtos.DemandeResponse;
 import com.project.VISA.dtos.DemandeValidationResponse;
+import com.project.VISA.dtos.FileUploadResponse;
+import com.project.VISA.dtos.StatusUpdateRequest;
 import com.project.VISA.services.DemandeService;
 
 import jakarta.validation.Valid;
@@ -64,5 +59,45 @@ public class DemandeController {
     @GetMapping("/{id}/validation")
     public DemandeValidationResponse validate(@PathVariable Long id) {
         return demandeService.validate(id);
+    }
+
+    // ==================== Photo & Signature Endpoints ====================
+
+    /**
+     * POST /api/v1/demandes/{id}/photo
+     * Accepte un fichier image multipart, valide format et taille (max 5MB),
+     * sauvegarde le fichier et retourne l'URL.
+     */
+    @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public FileUploadResponse uploadPhoto(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        return demandeService.uploadPhoto(id, file);
+    }
+
+    /**
+     * POST /api/v1/demandes/{id}/signature
+     * Accepte un fichier image multipart, valide format et taille,
+     * sauvegarde le fichier et retourne l'URL.
+     */
+    @PostMapping(value = "/{id}/signature", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public FileUploadResponse uploadSignature(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        return demandeService.uploadSignature(id, file);
+    }
+
+    // ==================== Status Transition Endpoint ====================
+
+    /**
+     * PATCH /api/v1/demandes/{id}/status
+     * Permet la transition d'état. Valide que photo et signature sont présentes
+     * pour PHOTO_SIGNATURE_COMPLETE. Refuse automatiquement si manquantes.
+     */
+    @PatchMapping("/{id}/status")
+    public DemandeResponse updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody StatusUpdateRequest request) {
+        return demandeService.updateStatus(id, request.getStatusCode());
     }
 }

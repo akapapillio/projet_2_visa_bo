@@ -99,64 +99,67 @@ Photo et Signature (status: capture photo + signature) [Avant de commencer le sc
 ### 🔧 Tâches BO - Backend (003330)
 
 #### Modèle de Données
-- [ ] Ajouter les colonnes à la table `demande`:
+- [x] Ajouter les colonnes à la table `demande`:
   - `photo_path` (VARCHAR) - chemin du fichier photo
-  - `photo_binary` (BLOB) ou URL stockée
+  - `photo_url` (VARCHAR) - URL stockée
   - `signature_path` (VARCHAR) - chemin du fichier signature
-  - `signature_binary` (BLOB) ou URL stockée
+  - `signature_url` (VARCHAR) - URL stockée
   - `photo_upload_date` (TIMESTAMP)
   - `signature_upload_date` (TIMESTAMP)
+  - `raison_refus` (VARCHAR) - raison du refus
 
-- [ ] Créer les migrations Flyway/Liquibase pour les changements BDD
+- [x] Créer les migrations Flyway/Liquibase pour les changements BDD
+  - `V1__add_photo_signature_columns.sql` - colonnes photo/signature/raison_refus
+  - `V2__add_photo_signature_statuses.sql` - statuts PHOTO_SIGNATURE_COMPLETE et REFUSEE
 
 #### APIs REST
-- [ ] Créer endpoint POST `/api/demandes/{id}/photo`:
+- [x] Créer endpoint POST `/api/demandes/{id}/photo`:
   - Accepter le fichier image (multipart)
   - Valider le format et la taille (max 5MB)
   - Sauvegarder le fichier (disque ou cloud)
   - Retourner l'URL ou le chemin
 
-- [ ] Créer endpoint POST `/api/demandes/{id}/signature`:
+- [x] Créer endpoint POST `/api/demandes/{id}/signature`:
   - Accepter le fichier image (multipart)
   - Valider le format et la taille
   - Sauvegarder le fichier
   - Retourner l'URL ou le chemin
 
-- [ ] Créer endpoint PATCH `/api/demandes/{id}/status`:
+- [x] Créer endpoint PATCH `/api/demandes/{id}/status`:
   - Permettre la transition vers l'état `PHOTO_SIGNATURE_COMPLETE`
   - Valider que photo et signature sont présentes
   - Valider la transition d'état
   - Mettre à jour le statut de la demande
 
-- [ ] Modifier endpoint GET `/api/demandes/{id}`:
+- [x] Modifier endpoint GET `/api/demandes/{id}`:
   - Retourner les URLs des photos et signatures
 
 #### Logique Métier
-- [ ] Implémenter validation:
+- [x] Implémenter validation:
   - Photo présente et valide avant passage au scan
   - Signature présente et valide avant passage au scan
   - Refuser la demande si l'une des deux est manquante
 
-- [ ] Implémenter la logique de refus de demande:
+- [x] Implémenter la logique de refus de demande:
   - Si photo ou signature manquantes → État `REFUSEE`
   - Enregistrer la raison du refus: "Photo et/ou signature non fournies"
 
-- [ ] Gérer le stockage des fichiers:
+- [x] Gérer le stockage des fichiers:
   - Configuration du chemin de sauvegarde
   - Génération des noms de fichiers uniques
   - Cleanup optionnel des fichiers en cas d'annulation
 
 #### Sécurité
-- [ ] Valider les types MIME (application/image seulement)
-- [ ] Limiter la taille des fichiers
-- [ ] Vérifier les permissions utilisateur avant accès
-- [ ] Protéger les endpoints avec l'authentification JWT
+- [x] Valider les types MIME (application/image seulement)
+- [x] Limiter la taille des fichiers
+- [ ] Vérifier les permissions utilisateur avant accès (Nécessite Spring Security)
+- [ ] Protéger les endpoints avec l'authentification JWT (Nécessite Spring Security)
 
 #### Tests
-- [ ] Tests unitaires pour la validation des fichiers
-- [ ] Tests d'intégration pour les endpoints
-- [ ] Tests pour les transitions d'état
-- [ ] Tests pour la logique de refus
+- [x] Tests unitaires pour la validation des fichiers
+- [x] Tests d'intégration pour les endpoints
+- [x] Tests pour les transitions d'état
+- [x] Tests pour la logique de refus
 
 ---
 

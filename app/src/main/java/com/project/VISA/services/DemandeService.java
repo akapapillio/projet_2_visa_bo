@@ -1,27 +1,22 @@
 package com.project.VISA.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.VISA.dtos.DemandeRequest;
 import com.project.VISA.dtos.DemandeResponse;
 import com.project.VISA.dtos.DemandeValidationResponse;
+import com.project.VISA.dtos.FileUploadResponse;
 import com.project.VISA.models.Demande;
+import com.project.VISA.models.StatusDm;
 import com.project.VISA.models.TypeVisa;
-import com.project.VISA.repositories.CarteResidentRepository;
-import com.project.VISA.repositories.DemandeRepository;
-import com.project.VISA.repositories.EtatCivilRepository;
-import com.project.VISA.repositories.PasseportRepository;
-import com.project.VISA.repositories.PieceDemandeRepository;
-import com.project.VISA.repositories.PieceRepository;
-import com.project.VISA.repositories.StatusDmRepository;
-import com.project.VISA.repositories.TypeDemandeObjetMetierObligatoireRepository;
-import com.project.VISA.repositories.TypeDemandeRepository;
-import com.project.VISA.repositories.TypeVisaRepository;
-import com.project.VISA.repositories.VisaRepository;
-import com.project.VISA.repositories.VisaTransformableRepository;
+import com.project.VISA.repositories.*;
 
 @Service
 public class DemandeService {
@@ -39,21 +34,25 @@ public class DemandeService {
     private final VisaTransformableRepository visaTransformableRepository;
     private final EtatCivilRepository etatCivilRepository;
     private final CarteResidentRepository carteResidentRepository;
+    private final FileStorageService fileStorageService;
+
+    private static final Map<String, Set<String>> ALLOWED_TRANSITIONS = Map.of(
+            "DEMANDE_CREE", Set.of("PHOTO_SIGNATURE_COMPLETE", "REFUSEE"),
+            "PHOTO_SIGNATURE_COMPLETE", Set.of("EN_COURS_DE_TRAITEMENT", "REFUSEE"),
+            "EN_COURS_DE_TRAITEMENT", Set.of("VALIDEE", "REFUSEE"),
+            "VALIDEE", Set.of("REFUSEE"),
+            "REFUSEE", Set.of("DEMANDE_CREE")
+    );
 
     public DemandeService(
-            DemandeRepository demandeRepository,
-            DemandeurService demandeurService,
-            TypeDemandeRepository typeDemandeRepository,
-            StatusDmRepository statusDmRepository,
-            TypeVisaRepository typeVisaRepository,
-            PieceDemandeRepository pieceDemandeRepository,
+            DemandeRepository demandeRepository, DemandeurService demandeurService,
+            TypeDemandeRepository typeDemandeRepository, StatusDmRepository statusDmRepository,
+            TypeVisaRepository typeVisaRepository, PieceDemandeRepository pieceDemandeRepository,
             TypeDemandeObjetMetierObligatoireRepository objetMetierObligatoireRepository,
-            PieceRepository pieceRepository,
-            PasseportRepository passeportRepository,
-            VisaRepository visaRepository,
-            VisaTransformableRepository visaTransformableRepository,
-            EtatCivilRepository etatCivilRepository,
-            CarteResidentRepository carteResidentRepository) {
+            PieceRepository pieceRepository, PasseportRepository passeportRepository,
+            VisaRepository visaRepository, VisaTransformableRepository visaTransformableRepository,
+            EtatCivilRepository etatCivilRepository, CarteResidentRepository carteResidentRepository,
+            FileStorageService fileStorageService) {
         this.demandeRepository = demandeRepository;
         this.demandeurService = demandeurService;
         this.typeDemandeRepository = typeDemandeRepository;
@@ -67,6 +66,7 @@ public class DemandeService {
         this.visaTransformableRepository = visaTransformableRepository;
         this.etatCivilRepository = etatCivilRepository;
         this.carteResidentRepository = carteResidentRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     public List<DemandeResponse> findAll() {
@@ -94,7 +94,86 @@ public class DemandeService {
     }
 
     public void delete(Long id) {
-        demandeRepository.delete(findEntity(id));
+        Demande demande = findEntity(id);
+        fileStorageService.deleteFile(demande.getPhotoPath());
+        fileStorageService.deleteFile(demande.getSignaturePath());
+        demandeRepository.delete(demande);
+    }
+
+    /** Upload la photo pour une demande. */
+    public FileUploadResponse uploadPhoto(Long demandeId, MultipartFile file) {
+        Demande demande = findEntity(demandeId);
+        fileStorageService.deleteFile(demande.getPhotoPath());
+
+        String path = fileStorageService.storeFile(file, "photos", demandeId);
+        String url = fileStorageService.buildFileUrl(path);
+        LocalDateTime now = LocalDateTime.now();
+
+        demande.setPhotoPath(path);
+        demande.setPhotoUrl(url);
+        demande.setPhotoUploadDate(now);
+        demandeRepository.save(demande);
+
+        return buildFileResponse(demandeId, path, url, "photo", now);
+    }
+
+    /** Upload la signature pour une demande. */
+    public FileUploadResponse uploadSignature(Long demandeId, MultipartFile file) {
+        Demande demande = findEntity(demandeId);
+        fileStorageService.deleteFile(demande.getSignaturePath());
+
+        String path = fileStorageService.storeFile(file, "signatures", demandeId);
+        String url = fileStorageService.buildFileUrl(path);
+        LocalDateTime now = LocalDateTime.now();
+
+        demande.setSignaturePath(path);
+        demande.setSignatureUrl(url);
+        demande.setSignatureUploadDate(now);
+        demandeRepository.save(demande);
+
+        return buildFileResponse(demandeId, path, url, "signature", now);
+    }
+
+    /** Met à jour le statut avec validation de transition et auto-refus. */
+    public DemandeResponse updateStatus(Long demandeId, String targetStatusCode) {
+        Demande demande = findEntity(demandeId);
+        String current = demande.getStatus().getCode();
+
+        Set<String> allowed = ALLOWED_TRANSITIONS.getOrDefault(current, Set.of());
+        if (!allowed.contains(targetStatusCode)) {
+            throw new BusinessValidationException(
+                    "Transition non autorisée de '" + current + "' vers '" + targetStatusCode
+                            + "'. Transitions possibles: " + allowed);
+        }
+
+        if ("PHOTO_SIGNATURE_COMPLETE".equals(targetStatusCode)) {
+            boolean hasPhoto = demande.getPhotoPath() != null && !demande.getPhotoPath().isBlank();
+            boolean hasSig = demande.getSignaturePath() != null && !demande.getSignaturePath().isBlank();
+
+            if (!hasPhoto || !hasSig) {
+                StatusDm refused = statusDmRepository.findByCode("REFUSEE")
+                        .orElseThrow(() -> new BusinessValidationException("Status REFUSEE absent en base."));
+                demande.setStatus(refused);
+                String raison = (!hasPhoto && !hasSig) ? "Photo et signature non fournies"
+                        : !hasPhoto ? "Photo non fournie" : "Signature non fournie";
+                demande.setRaisonRefus(raison);
+                demandeRepository.save(demande);
+                throw new BusinessValidationException("Demande refusée: " + raison);
+            }
+        }
+
+        StatusDm target = statusDmRepository.findByCode(targetStatusCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Status introuvable: " + targetStatusCode));
+        demande.setStatus(target);
+
+        if ("REFUSEE".equals(targetStatusCode) && demande.getRaisonRefus() == null) {
+            demande.setRaisonRefus("Demande refusée manuellement");
+        }
+        if (!"REFUSEE".equals(targetStatusCode)) {
+            demande.setRaisonRefus(null);
+        }
+
+        return toResponse(demandeRepository.save(demande));
     }
 
     public DemandeValidationResponse validate(Long demandeId) {
@@ -104,12 +183,9 @@ public class DemandeService {
 
         List<String> piecesManquantes = new ArrayList<>();
         pieceDemandeRepository.findByTypeDemandeId(typeDemandeId).forEach(rule -> {
-            boolean hasValidPiece = pieceRepository.existsByDemandeurIdAndCategoriePieceIdAndValideTrue(
-                    demandeurId,
-                    rule.getCategoriePiece().getId());
-            if (!hasValidPiece) {
-                piecesManquantes.add(rule.getCategoriePiece().getLibelle());
-            }
+            boolean ok = pieceRepository.existsByDemandeurIdAndCategoriePieceIdAndValideTrue(
+                    demandeurId, rule.getCategoriePiece().getId());
+            if (!ok) piecesManquantes.add(rule.getCategoriePiece().getLibelle());
         });
 
         List<String> objetsManquants = new ArrayList<>();
@@ -123,17 +199,20 @@ public class DemandeService {
                 case "CARTE_RESIDENT" -> carteResidentRepository.existsByDemandeurId(demandeurId);
                 default -> false;
             };
-            if (!present) {
-                objetsManquants.add(objet);
-            }
+            if (!present) objetsManquants.add(objet);
         });
 
-        DemandeValidationResponse response = new DemandeValidationResponse();
-        response.setDemandeId(demande.getId());
-        response.setPiecesManquantes(piecesManquantes);
-        response.setObjetsManquants(objetsManquants);
-        response.setValide(piecesManquantes.isEmpty() && objetsManquants.isEmpty());
-        return response;
+        if (demande.getPhotoPath() == null || demande.getPhotoPath().isBlank())
+            piecesManquantes.add("Photo d'identité");
+        if (demande.getSignaturePath() == null || demande.getSignaturePath().isBlank())
+            piecesManquantes.add("Signature");
+
+        DemandeValidationResponse resp = new DemandeValidationResponse();
+        resp.setDemandeId(demande.getId());
+        resp.setPiecesManquantes(piecesManquantes);
+        resp.setObjetsManquants(objetsManquants);
+        resp.setValide(piecesManquantes.isEmpty() && objetsManquants.isEmpty());
+        return resp;
     }
 
     public Demande findEntity(Long id) {
@@ -178,20 +257,35 @@ public class DemandeService {
     }
 
     private DemandeResponse toResponse(Demande demande) {
-        DemandeResponse response = new DemandeResponse();
-        response.setId(demande.getId());
-        response.setCreatedAt(demande.getCreatedAt());
-        response.setUpdatedAt(demande.getUpdatedAt());
-        response.setDemandeurId(demande.getDemandeur().getId());
-        response.setNomDemandeur(demande.getDemandeur().getNom() + " " + demande.getDemandeur().getPrenom());
-        response.setStatusId(demande.getStatus().getId());
-        response.setStatus(demande.getStatus().getCode());
-        response.setTypeDemandeId(demande.getTypeDemande().getId());
-        response.setTypeDemande(demande.getTypeDemande().getNom());
+        DemandeResponse r = new DemandeResponse();
+        r.setId(demande.getId());
+        r.setCreatedAt(demande.getCreatedAt());
+        r.setUpdatedAt(demande.getUpdatedAt());
+        r.setDemandeurId(demande.getDemandeur().getId());
+        r.setNomDemandeur(demande.getDemandeur().getNom() + " " + demande.getDemandeur().getPrenom());
+        r.setStatusId(demande.getStatus().getId());
+        r.setStatus(demande.getStatus().getCode());
+        r.setTypeDemandeId(demande.getTypeDemande().getId());
+        r.setTypeDemande(demande.getTypeDemande().getNom());
         if (demande.getTypeVisa() != null) {
-            response.setTypeVisaId(demande.getTypeVisa().getId());
-            response.setTypeVisa(demande.getTypeVisa().getLibelle());
+            r.setTypeVisaId(demande.getTypeVisa().getId());
+            r.setTypeVisa(demande.getTypeVisa().getLibelle());
         }
-        return response;
+        r.setPhotoUrl(demande.getPhotoUrl());
+        r.setPhotoUploadDate(demande.getPhotoUploadDate());
+        r.setSignatureUrl(demande.getSignatureUrl());
+        r.setSignatureUploadDate(demande.getSignatureUploadDate());
+        r.setRaisonRefus(demande.getRaisonRefus());
+        return r;
+    }
+
+    private FileUploadResponse buildFileResponse(Long demandeId, String path, String url, String type, LocalDateTime date) {
+        FileUploadResponse r = new FileUploadResponse();
+        r.setDemandeId(demandeId);
+        r.setFilePath(path);
+        r.setFileUrl(url);
+        r.setType(type);
+        r.setUploadDate(date);
+        return r;
     }
 }
