@@ -13,8 +13,8 @@ pseudo des contributeur :
 
 ## tâches communes : 
 
-- [ ] simulation en env dev (staging)
-- [ ] tests finaux pour le sprint 2 (release)
+- [x] simulation en env dev (staging)
+- [x] tests finaux pour le sprint 2 (release)
 
 # TO-DO TL :
 - [x] conception  (en atente d une restructuration et refractor back pour)
@@ -23,11 +23,11 @@ pseudo des contributeur :
 - [x] structure git
 - [x] en staging , restructuration , refractor back pour (code first ,orm first => Hybrid approach)
 
-- [ ]GitFlow
-    - [ ] Creation de la branche : sprint-2 (coté FO ET BO)
-    - [ ] Merge sprint-2 (supp sprint 2) / Creation de STAGING-sprint-2
-    - [ ] Creation de release ()
-    - [ ] déploiement
+- [x]GitFlow
+    - [x] Creation de la branche : sprint-2 (coté FO ET BO)
+    - [x] Merge sprint-2 (supp sprint 2) / Creation de STAGING-sprint-2
+    - [x] Creation de release ()
+    - [x] déploiement
 
 
 
