@@ -16,6 +16,13 @@ public class DemandeResponse {
     private Long typeVisaId;
     private String typeVisa;
 
+    // --- Photo & Signature ---
+    private String photoUrl;
+    private LocalDateTime photoUploadDate;
+    private String signatureUrl;
+    private LocalDateTime signatureUploadDate;
+    private String raisonRefus;
+
     public Long getId() {
         return id;
     }
@@ -102,5 +109,45 @@ public class DemandeResponse {
 
     public void setTypeVisa(String typeVisa) {
         this.typeVisa = typeVisa;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public LocalDateTime getPhotoUploadDate() {
+        return photoUploadDate;
+    }
+
+    public void setPhotoUploadDate(LocalDateTime photoUploadDate) {
+        this.photoUploadDate = photoUploadDate;
+    }
+
+    public String getSignatureUrl() {
+        return signatureUrl;
+    }
+
+    public void setSignatureUrl(String signatureUrl) {
+        this.signatureUrl = signatureUrl;
+    }
+
+    public LocalDateTime getSignatureUploadDate() {
+        return signatureUploadDate;
+    }
+
+    public void setSignatureUploadDate(LocalDateTime signatureUploadDate) {
+        this.signatureUploadDate = signatureUploadDate;
+    }
+
+    public String getRaisonRefus() {
+        return raisonRefus;
+    }
+
+    public void setRaisonRefus(String raisonRefus) {
+        this.raisonRefus = raisonRefus;
     }
 }

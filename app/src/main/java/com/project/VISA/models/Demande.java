@@ -45,6 +45,30 @@ public class Demande {
     @JoinColumn(name = "id_type_visa")
     private TypeVisa typeVisa;
 
+    // --- Colonnes photo ---
+    @Column(name = "photo_path", length = 500)
+    private String photoPath;
+
+    @Column(name = "photo_url", length = 1000)
+    private String photoUrl;
+
+    @Column(name = "photo_upload_date")
+    private LocalDateTime photoUploadDate;
+
+    // --- Colonnes signature ---
+    @Column(name = "signature_path", length = 500)
+    private String signaturePath;
+
+    @Column(name = "signature_url", length = 1000)
+    private String signatureUrl;
+
+    @Column(name = "signature_upload_date")
+    private LocalDateTime signatureUploadDate;
+
+    // --- Raison de refus ---
+    @Column(name = "raison_refus", length = 1000)
+    private String raisonRefus;
+
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
@@ -103,5 +127,61 @@ public class Demande {
 
     public void setTypeVisa(TypeVisa typeVisa) {
         this.typeVisa = typeVisa;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public LocalDateTime getPhotoUploadDate() {
+        return photoUploadDate;
+    }
+
+    public void setPhotoUploadDate(LocalDateTime photoUploadDate) {
+        this.photoUploadDate = photoUploadDate;
+    }
+
+    public String getSignaturePath() {
+        return signaturePath;
+    }
+
+    public void setSignaturePath(String signaturePath) {
+        this.signaturePath = signaturePath;
+    }
+
+    public String getSignatureUrl() {
+        return signatureUrl;
+    }
+
+    public void setSignatureUrl(String signatureUrl) {
+        this.signatureUrl = signatureUrl;
+    }
+
+    public LocalDateTime getSignatureUploadDate() {
+        return signatureUploadDate;
+    }
+
+    public void setSignatureUploadDate(LocalDateTime signatureUploadDate) {
+        this.signatureUploadDate = signatureUploadDate;
+    }
+
+    public String getRaisonRefus() {
+        return raisonRefus;
+    }
+
+    public void setRaisonRefus(String raisonRefus) {
+        this.raisonRefus = raisonRefus;
     }
 }

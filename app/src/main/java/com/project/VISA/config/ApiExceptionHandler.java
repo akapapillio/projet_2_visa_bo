@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import com.project.VISA.dtos.ApiErrorResponse;
 import com.project.VISA.services.BusinessValidationException;
@@ -47,6 +48,15 @@ public class ApiExceptionHandler {
         }
         body.setDetails(details);
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+        ApiErrorResponse body = new ApiErrorResponse();
+        body.setStatus(HttpStatus.PAYLOAD_TOO_LARGE.value());
+        body.setError(HttpStatus.PAYLOAD_TOO_LARGE.getReasonPhrase());
+        body.setMessage("Le fichier dépasse la taille maximale autorisée (5 MB).");
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(body);
     }
 
     @ExceptionHandler(Exception.class)
